@@ -17,10 +17,11 @@ extension StoredParticipant {
         return NSFetchRequest<StoredParticipant>(entityName: "StoredParticipant")
     }
 
+    @NSManaged public var displayName: String?
+    @NSManaged public var eventID: Int64
     @NSManaged public var number: Int64
     @NSManaged public var ptype: String?
-    @NSManaged public var displayName: String?
     @NSManaged public var userName: String?
-    @NSManaged public var eventID: Int64
+    @NSManaged public var isChecked: Bool
 
 }

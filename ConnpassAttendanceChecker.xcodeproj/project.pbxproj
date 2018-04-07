@@ -19,6 +19,8 @@
 		37297F97207812A20019A4EF /* ParticipantListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37297F96207812A20019A4EF /* ParticipantListViewController.swift */; };
 		37297F9B2078169A0019A4EF /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37297F9A2078169A0019A4EF /* LoginViewController.swift */; };
 		37297F9D207879080019A4EF /* ParticipantListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37297F9C207879070019A4EF /* ParticipantListViewModel.swift */; };
+		372DC0322078CDBC006E7208 /* ParticipantCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372DC0302078CDBC006E7208 /* ParticipantCell.swift */; };
+		372DC0332078CDBC006E7208 /* ParticipantCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 372DC0312078CDBC006E7208 /* ParticipantCell.xib */; };
 		373FB7EB2077E251007A5CE2 /* Participant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373FB7EA2077E251007A5CE2 /* Participant.swift */; };
 		373FB7F02077E876007A5CE2 /* StoredParticipant+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373FB7EC2077E876007A5CE2 /* StoredParticipant+CoreDataClass.swift */; };
 		373FB7F12077E876007A5CE2 /* StoredParticipant+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373FB7ED2077E876007A5CE2 /* StoredParticipant+CoreDataProperties.swift */; };
@@ -63,6 +65,8 @@
 		37297F96207812A20019A4EF /* ParticipantListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantListViewController.swift; sourceTree = "<group>"; };
 		37297F9A2078169A0019A4EF /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		37297F9C207879070019A4EF /* ParticipantListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantListViewModel.swift; sourceTree = "<group>"; };
+		372DC0302078CDBC006E7208 /* ParticipantCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantCell.swift; sourceTree = "<group>"; };
+		372DC0312078CDBC006E7208 /* ParticipantCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ParticipantCell.xib; sourceTree = "<group>"; };
 		373FB7EA2077E251007A5CE2 /* Participant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Participant.swift; sourceTree = "<group>"; };
 		373FB7EC2077E876007A5CE2 /* StoredParticipant+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StoredParticipant+CoreDataClass.swift"; sourceTree = "<group>"; };
 		373FB7ED2077E876007A5CE2 /* StoredParticipant+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StoredParticipant+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -127,6 +131,8 @@
 			children = (
 				37297F96207812A20019A4EF /* ParticipantListViewController.swift */,
 				37297F9C207879070019A4EF /* ParticipantListViewModel.swift */,
+				372DC0302078CDBC006E7208 /* ParticipantCell.swift */,
+				372DC0312078CDBC006E7208 /* ParticipantCell.xib */,
 			);
 			path = ParticipantList;
 			sourceTree = "<group>";
@@ -335,6 +341,7 @@
 				37B640FF207674A00061D8AF /* LaunchScreen.storyboard in Resources */,
 				37B640FC207674A00061D8AF /* Assets.xcassets in Resources */,
 				37297F832077EDCE0019A4EF /* EventRegisterViewController.xib in Resources */,
+				372DC0332078CDBC006E7208 /* ParticipantCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -383,6 +390,7 @@
 				37297F97207812A20019A4EF /* ParticipantListViewController.swift in Sources */,
 				37297F822077EDCE0019A4EF /* EventRegisterViewController.swift in Sources */,
 				37297F852077EFD90019A4EF /* EventListViewModel.swift in Sources */,
+				372DC0322078CDBC006E7208 /* ParticipantCell.swift in Sources */,
 				37B640FA2076749F0061D8AF /* ConnpassAttendanceChecker.xcdatamodeld in Sources */,
 				37297F892077F4120019A4EF /* ObservableType.unwrap.swift in Sources */,
 				373FB7F72077E94A007A5CE2 /* EventListViewController.swift in Sources */,
@@ -545,6 +553,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8WYW9G5NXR;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
@@ -568,6 +577,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8WYW9G5NXR;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",

@@ -8,12 +8,13 @@
     <entity name="StoredParticipant" representedClassName="StoredParticipant" syncable="YES">
         <attribute name="displayName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="eventID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="isChecked" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="number" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="ptype" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="userName" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
         <element name="StoredEvent" positionX="-54" positionY="27" width="128" height="90"/>
-        <element name="StoredParticipant" positionX="-63" positionY="-18" width="128" height="120"/>
+        <element name="StoredParticipant" positionX="-63" positionY="-18" width="128" height="135"/>
     </elements>
 </model>

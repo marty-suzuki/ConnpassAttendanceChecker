@@ -15,6 +15,7 @@ struct Participant {
     var number: Int
     var displayName: String
     var userName: String
+    var isChecked: Bool
 }
 
 extension Participant {
@@ -43,7 +44,8 @@ extension Participant {
                                    eventID: eventID,
                                    number: number,
                                    displayName: displayName,
-                                   userName: userName)
+                                   userName: userName,
+                                   isChecked: false)
             }
     }
 
@@ -53,5 +55,6 @@ extension Participant {
         self.number = Int(participant.number)
         self.displayName = participant.displayName ?? ""
         self.userName = participant.userName ?? ""
+        self.isChecked = participant.isChecked
     }
 }

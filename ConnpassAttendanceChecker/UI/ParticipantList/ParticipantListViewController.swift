@@ -47,7 +47,8 @@ final class ParticipantListViewController: UIViewController {
         navigationItem.title = "Participant List"
 
         tableview.dataSource = self
-        tableview.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        let nib = UINib(nibName: ParticipantCell.identifier, bundle: nil)
+        tableview.register(nib, forCellReuseIdentifier: ParticipantCell.identifier)
         view.ex.addEdges(to: tableview)
 
         webview.navigationDelegate = self
@@ -91,8 +92,10 @@ extension ParticipantListViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableview.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        cell.textLabel?.text = viewModel.participants.value[indexPath.row].userName
+        let cell = tableview.dequeueReusableCell(withIdentifier: ParticipantCell.identifier, for: indexPath)
+        if let cell = cell as? ParticipantCell {
+            cell.configure(with: viewModel.participants.value[indexPath.row])
+        }
         return cell
     }
 }
