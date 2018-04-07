@@ -18,26 +18,25 @@ final class ParticipantListViewModel: NSObject {
         static let loginURLString = "https://connpass.com/login"
     }
 
-    let reloadData: Observable<Void>
+    struct CheckedAlertElement {
+        let index: Int
+        let title: String
+        let message: String
+    }
 
     let processPool: PropertyRelay<WKProcessPool>
-    private let _processPool: BehaviorRelay<WKProcessPool>
-
-    let participantsURL: Observable<URL>
-    private let _participantsURL = BehaviorRelay<URL?>(value: nil)
-
-    let navigationActionPolicy: Observable<WKNavigationActionPolicy>
-    private let _navigationActionPolicy = PublishRelay<WKNavigationActionPolicy>()
-
     let participants: PropertyRelay<[Participant]>
-    private let _participants: BehaviorRelay<[Participant]>
 
+    let reloadData: Observable<Void>
+    let participantsURL: Observable<URL>
+    let navigationActionPolicy: Observable<WKNavigationActionPolicy>
     let showLogin: Observable<WKProcessPool>
-    private let _showLogin = PublishRelay<WKProcessPool>()
-
     let getHTMLDocument: Observable<Void>
-    private let _getHTMLDocument = PublishRelay<Void>()
+    let closeKeyboard: Observable<Void>
+    let showCheckedAlert: Observable<CheckedAlertElement>
+    let scrollTo: Observable<IndexPath>
 
+    private let _participants: BehaviorRelay<[Participant]>
     private let disposeBag = DisposeBag()
     private let fetchedResultsController: NSFetchedResultsController<StoredParticipant>
 
@@ -46,6 +45,11 @@ final class ParticipantListViewModel: NSObject {
          navigationAction: Observable<WKNavigationAction>,
          htmlDocument: Observable<HTMLDocument>,
          loading: Observable<Bool>,
+         numberText: Observable<String?>,
+         cancelButtonTap: Observable<Void>,
+         searchButtonTap: Observable<Void>,
+         cameraButtonTap: Observable<Void>,
+         checkedActionStyle: Observable<AlertActionStyle>,
          processPool: WKProcessPool = .init(),
          database: Database = .shared) {
         let request: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
@@ -56,19 +60,65 @@ final class ParticipantListViewModel: NSObject {
         self._participants = BehaviorRelay(value: results.map(Participant.init))
         self.participants = PropertyRelay(_participants)
 
-        self._processPool = BehaviorRelay(value: processPool)
+        let _processPool = BehaviorRelay(value: processPool)
         self.processPool = PropertyRelay(_processPool)
+
+        let _participantsURL = BehaviorRelay<URL?>(value: nil)
         self.participantsURL = _participantsURL.unwrap()
+
+        let _navigationActionPolicy = PublishRelay<WKNavigationActionPolicy>()
         self.navigationActionPolicy = _navigationActionPolicy.asObservable()
+
+        let _showLogin = PublishRelay<WKProcessPool>()
         self.showLogin = _showLogin.asObservable()
+
+        let _getHTMLDocument = PublishRelay<Void>()
         self.getHTMLDocument = _getHTMLDocument.asObservable()
+
+        let _showCheckedAlert = PublishRelay<CheckedAlertElement>()
+        self.showCheckedAlert = _showCheckedAlert.asObservable()
+
+        let _scrollTo = PublishRelay<IndexPath>()
+        self.scrollTo = _scrollTo.asObservable()
+
         self.reloadData = _participants
             .filter { !$0.isEmpty }
             .map { _ in }
 
+        let _closeKeyboard = PublishRelay<Void>()
+        self.closeKeyboard = _closeKeyboard.asObservable()
+
+        let participantIndex = searchButtonTap
+            .withLatestFrom(numberText)
+            .unwrap()
+            .flatMap { Int($0).map(Observable.just) ?? .empty() }
+            .withLatestFrom(_participants) { ($0, $1) }
+            .map { number, participants -> Int? in
+                participants.index { $0.number == number }
+            }
+            .share()
+
+        participantIndex
+            .unwrap()
+            .withLatestFrom(_participants) { ($0, $1) }
+            .map { index, participants in
+                let participant = participants[index]
+                let strings = [
+                    "Number: \(participant.number)",
+                    "DisplayName: \(participant.displayName)",
+                    "UserName: \(participant.userName)"
+                ]
+                let message = String(strings.joined(separator: "\n"))
+                return CheckedAlertElement(index: index,
+                                           title: "Do you check this participant?",
+                                           message: message)
+            }
+            .bind(to: _showCheckedAlert)
+            .disposed(by: disposeBag)
+
         htmlDocument
             .map { [event] in Participant.list(from: $0, eventID: event.id) }
-            .flatMap { participants in
+            .flatMap { participants -> Single<Void> in
                 database.perform(block: { context in
                     participants.forEach { participant in
                         let model = StoredParticipant(context: context)
@@ -83,16 +133,45 @@ final class ParticipantListViewModel: NSObject {
             .subscribe()
             .disposed(by: disposeBag)
 
+        let updatedWithIndexPath = checkedActionStyle
+            .filter { $0.isDefault }
+            .withLatestFrom(_showCheckedAlert.map { $0.index })
+            .withLatestFrom(_participants) { ($0, $1) }
+            .flatMap { index, participants -> Observable<IndexPath> in
+                let participant = participants[index]
+                return database.perform(block: { context in
+                    let request: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
+                    request.fetchLimit = 1
+                    request.predicate = NSPredicate(format: "number = %lld AND eventID = %lld",
+                                                    participant.number,
+                                                    participant.eventID)
+
+                    guard let object = try context.fetch(request).first else {
+                        throw Database.Error.objectNotFound
+                    }
+
+                    object.isChecked = true
+                })
+                .asObservable()
+                .catchError { _ in .empty() }
+                .map { IndexPath(row: index, section: 0) }
+            }
+            .share()
+
+        updatedWithIndexPath
+            .bind(to: _scrollTo)
+            .disposed(by: disposeBag)
+
         let navigationActionURL = navigationAction
             .map { $0.request.url }
             .share()
 
-        do {
-            let containsLoginURLString = navigationActionURL
-                .unwrap()
-                .map { $0.absoluteString.contains(Const.loginURLString) }
-                .share()
+        let containsLoginURLString = navigationActionURL
+            .unwrap()
+            .map { $0.absoluteString.contains(Const.loginURLString) }
+            .share()
 
+        do {
             let policy = containsLoginURLString
                 .map { contains -> WKNavigationActionPolicy in
                     contains ? .cancel : .allow
@@ -113,14 +192,16 @@ final class ParticipantListViewModel: NSObject {
                 .disposed(by: disposeBag)
         }
 
-        let containsParticipantsURLString = navigationActionURL
+        let containgParticipantsURLString = navigationActionURL
             .unwrap()
             .withLatestFrom(_participantsURL.unwrap()) { ($0, $1) }
             .filter { $0.absoluteString.contains($1.absoluteString) }
             .map { _ in }
 
-        Observable.combineLatest(loading, containsParticipantsURLString)
-            .filter { !$0.0 }
+        Observable.combineLatest(loading,
+                                 containsLoginURLString,
+                                 containgParticipantsURLString)
+            .filter { !$0.0 && !$0.1 }
             .map { _ in }
             .bind(to: _getHTMLDocument)
             .disposed(by: disposeBag)
@@ -132,6 +213,11 @@ final class ParticipantListViewModel: NSObject {
         fetchParticipants
             .map { [event] in URL(string: "https://connpass.com/event/\(event.id)/participants") }
             .bind(to: _participantsURL)
+            .disposed(by: disposeBag)
+
+        Observable.merge(cancelButtonTap,
+                         updatedWithIndexPath.map { _ in })
+            .bind(to: _closeKeyboard)
             .disposed(by: disposeBag)
 
         super.init()

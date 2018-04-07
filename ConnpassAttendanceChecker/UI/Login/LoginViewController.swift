@@ -8,9 +8,18 @@
 
 import UIKit
 import WebKit
+import RxSwift
+import RxCocoa
 
 final class LoginViewController: UIViewController {
     private let webview: WKWebView
+    private let closeButton = UIBarButtonItem(title: "Close", style: .plain, target: nil, action: nil)
+
+    private let _navigationAction = PublishRelay<WKNavigationAction>()
+    private var navigationActionPolicyDisposeBag = DisposeBag()
+    private let disposeBag = DisposeBag()
+    private lazy var viewModel = LoginViewModel(navigationAction: self._navigationAction.asObservable(),
+                                                closeButtonTap: self.closeButton.rx.tap.asObservable())
 
     init(processPool: WKProcessPool) {
         self.webview = {
@@ -28,19 +37,32 @@ final class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        navigationItem.rightBarButtonItem = closeButton
         webview.navigationDelegate = self
         view.ex.addEdges(to: webview)
 
-        let url = URL(string: "https://connpass.com/login")!
-        let request = URLRequest(url: url)
-        webview.load(request)
+        viewModel.loadRequest
+            .bind(to: Binder(webview) { webview, request in
+                webview.load(request)
+            })
+            .disposed(by: disposeBag)
+
+        viewModel.close
+            .bind(to: Binder(self) { me, _ in
+                me.dismiss(animated: true, completion: nil)
+            })
+            .disposed(by: disposeBag)
     }
 }
 
 extension LoginViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        print(navigationAction.request)
-        // https://connpass.com/dashboard
-        decisionHandler(.allow)
+        navigationActionPolicyDisposeBag = DisposeBag()
+
+        viewModel.navigationActionPolicy
+            .bind(onNext: decisionHandler)
+            .disposed(by: navigationActionPolicyDisposeBag)
+
+        _navigationAction.accept(navigationAction)
     }
 }

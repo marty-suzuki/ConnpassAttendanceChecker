@@ -40,6 +40,7 @@
 		37CFC8882077C5FA008C936C /* Kanna.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37CFC8872077C5FA008C936C /* Kanna.framework */; };
 		37CFC88C2077C888008C936C /* RxCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37CFC88A2077C888008C936C /* RxCocoa.framework */; };
 		37CFC88D2077C888008C936C /* RxSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37CFC88B2077C888008C936C /* RxSwift.framework */; };
+		37EDE3CE2079160F008F7475 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EDE3CD2079160F008F7475 /* LoginViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,6 +92,7 @@
 		37CFC8872077C5FA008C936C /* Kanna.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Kanna.framework; path = Carthage/Build/iOS/Kanna.framework; sourceTree = "<group>"; };
 		37CFC88A2077C888008C936C /* RxCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxCocoa.framework; path = Carthage/Build/iOS/RxCocoa.framework; sourceTree = "<group>"; };
 		37CFC88B2077C888008C936C /* RxSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxSwift.framework; path = Carthage/Build/iOS/RxSwift.framework; sourceTree = "<group>"; };
+		37EDE3CD2079160F008F7475 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,6 +143,7 @@
 			isa = PBXGroup;
 			children = (
 				37297F9A2078169A0019A4EF /* LoginViewController.swift */,
+				37EDE3CD2079160F008F7475 /* LoginViewModel.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -398,6 +401,7 @@
 				373FB7F32077E876007A5CE2 /* StoredEvent+CoreDataProperties.swift in Sources */,
 				37297F9D207879080019A4EF /* ParticipantListViewModel.swift in Sources */,
 				37B640F22076749F0061D8AF /* AppDelegate.swift in Sources */,
+				37EDE3CE2079160F008F7475 /* LoginViewModel.swift in Sources */,
 				378A2B4720789874001D9DDD /* WKWebView.extension.swift in Sources */,
 				373FB7FB2077EA8E007A5CE2 /* UIView.extension.swift in Sources */,
 				373FB7EB2077E251007A5CE2 /* Participant.swift in Sources */,

@@ -19,6 +19,29 @@ final class ParticipantListViewController: UIViewController {
         config.processPool = viewModel.processPool.value
         return WKWebView(frame: .zero, configuration: config)
     }()
+    private lazy var numberSearchField: UITextField = {
+        let textFeild = UITextField(frame: .zero)
+        textFeild.borderStyle = .roundedRect
+        textFeild.keyboardType = .numberPad
+        textFeild.placeholder = "Seach Number..."
+        let toolbar = UIToolbar(frame: .zero)
+        toolbar.translatesAutoresizingMaskIntoConstraints = false
+        let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        toolbar.setItems([self.cancelButton, spacer, self.searchButton], animated: false)
+        textFeild.inputAccessoryView = toolbar
+        return textFeild
+    }()
+    private lazy var searchToolbar: UIToolbar = {
+        let toolbar = UIToolbar(frame: .zero)
+        self.numberSearchField.translatesAutoresizingMaskIntoConstraints = false
+        let textFeild = UIBarButtonItem(customView: self.numberSearchField)
+        let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        toolbar.setItems([textFeild, spacer, self.cameraButton], animated: false)
+        return toolbar
+    }()
+    private let searchButton = UIBarButtonItem(title: "Search", style: .plain, target: nil, action: nil)
+    private let cameraButton = UIBarButtonItem(barButtonSystemItem: .camera, target: nil, action: nil)
+    private let cancelButton = UIBarButtonItem(title: "Cancel", style: .plain, target: nil, action: nil)
 
     private let event: Event
     private let disposeBag = DisposeBag()
@@ -26,11 +49,17 @@ final class ParticipantListViewController: UIViewController {
     private var navigationActionPolicyDisposeBag = DisposeBag()
     private let _htmlDocument = PublishRelay<HTMLDocument>()
     private let _isLoading = PublishRelay<Bool>()
+    private let _checkedActionStyle = PublishRelay<AlertActionStyle>()
     private lazy var viewModel = ParticipantListViewModel(event: self.event,
                                                           viewDidAppear: self.ex.viewDidAppear,
                                                           navigationAction: self._navigationAction.asObservable(),
                                                           htmlDocument: self._htmlDocument.asObservable(),
-                                                          loading: self._isLoading.asObservable())
+                                                          loading: self._isLoading.asObservable(),
+                                                          numberText: self.numberSearchField.rx.text.asObservable(),
+                                                          cancelButtonTap: self.cancelButton.rx.tap.asObservable(),
+                                                          searchButtonTap: self.searchButton.rx.tap.asObservable(),
+                                                          cameraButtonTap: self.cameraButton.rx.tap.asObservable(),
+                                                          checkedActionStyle: self._checkedActionStyle.asObservable())
 
     init(event: Event) {
         self.event = event
@@ -50,6 +79,18 @@ final class ParticipantListViewController: UIViewController {
         let nib = UINib(nibName: ParticipantCell.identifier, bundle: nil)
         tableview.register(nib, forCellReuseIdentifier: ParticipantCell.identifier)
         view.ex.addEdges(to: tableview)
+
+        do {
+            let toolbarHeight: CGFloat = 44
+            view.ex.addEdges([.left, .right], to: searchToolbar)
+            NSLayoutConstraint.activate([
+                ex.topAnchor.constraint(equalTo: searchToolbar.topAnchor),
+                searchToolbar.heightAnchor.constraint(equalToConstant: toolbarHeight)
+            ])
+            tableview.contentInset.top = toolbarHeight
+            tableview.scrollIndicatorInsets.top = toolbarHeight
+            tableview.setContentOffset(CGPoint(x: 0, y: -toolbarHeight), animated: false)
+        }
 
         webview.navigationDelegate = self
 
@@ -81,6 +122,33 @@ final class ParticipantListViewController: UIViewController {
         viewModel.reloadData
             .bind(to: Binder(tableview) { tableview, _ in
                 tableview.reloadData()
+            })
+            .disposed(by: disposeBag)
+
+        viewModel.closeKeyboard
+            .bind(to: Binder(numberSearchField) { textField, _ in
+                textField.resignFirstResponder()
+            })
+            .disposed(by: disposeBag)
+
+        viewModel.showCheckedAlert
+            .flatMap { [weak self] element in
+                self.map {
+                    UIAlertController(title: element.title,
+                                      message: element.message,
+                                      preferredStyle: .alert)
+                        .ex.show(with: [.default("YES"), .destructive("NO")], to: $0)
+                } ?? .empty()
+            }
+            .bind(to: _checkedActionStyle)
+            .disposed(by: disposeBag)
+
+        viewModel.scrollTo
+            .bind(to: Binder(tableview) { tableview, indexPath in
+                tableview.selectRow(at: indexPath, animated: true, scrollPosition: .top)
+                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak tableview] in
+                    tableview?.deselectRow(at: indexPath, animated: true)
+                }
             })
             .disposed(by: disposeBag)
     }

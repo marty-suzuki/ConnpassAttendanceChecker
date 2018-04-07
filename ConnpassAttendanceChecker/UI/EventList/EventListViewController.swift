@@ -24,6 +24,7 @@ final class EventListViewController: UIViewController {
         view.ex.addEdges(to: tableview)
         navigationItem.rightBarButtonItem = registerButton
         navigationItem.title = "Connpass Event List"
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
 
         tableview.dataSource = self
         tableview.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
