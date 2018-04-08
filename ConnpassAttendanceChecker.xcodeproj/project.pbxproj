@@ -41,6 +41,7 @@
 		37CFC88C2077C888008C936C /* RxCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37CFC88A2077C888008C936C /* RxCocoa.framework */; };
 		37CFC88D2077C888008C936C /* RxSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37CFC88B2077C888008C936C /* RxSwift.framework */; };
 		37EDE3CE2079160F008F7475 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EDE3CD2079160F008F7475 /* LoginViewModel.swift */; };
+		37EDE3D1207A88BF008F7475 /* Enumerable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EDE3D0207A88BF008F7475 /* Enumerable.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,6 +94,7 @@
 		37CFC88A2077C888008C936C /* RxCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxCocoa.framework; path = Carthage/Build/iOS/RxCocoa.framework; sourceTree = "<group>"; };
 		37CFC88B2077C888008C936C /* RxSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxSwift.framework; path = Carthage/Build/iOS/RxSwift.framework; sourceTree = "<group>"; };
 		37EDE3CD2079160F008F7475 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		37EDE3D0207A88BF008F7475 /* Enumerable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enumerable.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,6 +156,7 @@
 				37B640F12076749F0061D8AF /* AppDelegate.swift */,
 				37297F8C207806AC0019A4EF /* Database.swift */,
 				37297F9020780D7A0019A4EF /* PropertyRelay.swift */,
+				37EDE3CF207A8890008F7475 /* Protocol */,
 				373FB7F92077EA38007A5CE2 /* Extension */,
 				373FB7F82077EA1D007A5CE2 /* Model */,
 			);
@@ -257,6 +260,14 @@
 				37B64115207674D20061D8AF /* WebKit.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		37EDE3CF207A8890008F7475 /* Protocol */ = {
+			isa = PBXGroup;
+			children = (
+				37EDE3D0207A88BF008F7475 /* Enumerable.swift */,
+			);
+			path = Protocol;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -385,6 +396,7 @@
 				373FB7F12077E876007A5CE2 /* StoredParticipant+CoreDataProperties.swift in Sources */,
 				37297F9120780D7A0019A4EF /* PropertyRelay.swift in Sources */,
 				37297F872077F2EF0019A4EF /* EventRegisterViewModel.swift in Sources */,
+				37EDE3D1207A88BF008F7475 /* Enumerable.swift in Sources */,
 				373FB7F52077E8B3007A5CE2 /* Event.swift in Sources */,
 				373FB7F02077E876007A5CE2 /* StoredParticipant+CoreDataClass.swift in Sources */,
 				373FB7F22077E876007A5CE2 /* StoredEvent+CoreDataClass.swift in Sources */,

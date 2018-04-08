@@ -14,36 +14,48 @@ import Kanna
 
 final class ParticipantListViewController: UIViewController {
     private let tableview = UITableView(frame: .zero)
+    private let refreshButton = UIBarButtonItem(barButtonSystemItem: .refresh, target: nil, action: nil)
+    private let selectorButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
+    private let pickerView = UIPickerView(frame: .zero)
     private lazy var webview: WKWebView = {
         let config = WKWebViewConfiguration()
         config.processPool = viewModel.processPool.value
         return WKWebView(frame: .zero, configuration: config)
     }()
-    private lazy var numberSearchField: UITextField = {
-        let textFeild = UITextField(frame: .zero)
-        textFeild.borderStyle = .roundedRect
-        textFeild.keyboardType = .numberPad
-        textFeild.placeholder = "Seach Number..."
-        let toolbar = UIToolbar(frame: .zero)
-        toolbar.translatesAutoresizingMaskIntoConstraints = false
-        let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        toolbar.setItems([self.cancelButton, spacer, self.searchButton], animated: false)
-        textFeild.inputAccessoryView = toolbar
-        return textFeild
+    private lazy var searchBar: UISearchBar = {
+        let searchBar = UISearchBar(frame: .zero)
+        searchBar.showsCancelButton = true
+        return searchBar
     }()
     private lazy var searchToolbar: UIToolbar = {
         let toolbar = UIToolbar(frame: .zero)
-        self.numberSearchField.translatesAutoresizingMaskIntoConstraints = false
-        let textFeild = UIBarButtonItem(customView: self.numberSearchField)
-        let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        toolbar.setItems([textFeild, spacer, self.cameraButton], animated: false)
+        toolbar.clipsToBounds = true
+        self.searchBar.translatesAutoresizingMaskIntoConstraints = false
+        let textFeild = UIBarButtonItem(customView: self.searchBar)
+        toolbar.setItems([textFeild], animated: false)
         return toolbar
     }()
-    private let searchButton = UIBarButtonItem(title: "Search", style: .plain, target: nil, action: nil)
-    private let cameraButton = UIBarButtonItem(barButtonSystemItem: .camera, target: nil, action: nil)
-    private let cancelButton = UIBarButtonItem(title: "Cancel", style: .plain, target: nil, action: nil)
+    private lazy var searchTypeToolbar: UIToolbar = {
+        let toolbar = UIToolbar(frame: .zero)
+        toolbar.clipsToBounds = true
+        let spacer1 = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let spacer2 = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        toolbar.setItems([spacer1, self.selectorButton, spacer2], animated: false)
+        return toolbar
+    }()
+    private lazy var pickerToolbar: UIToolbar = {
+        let toolbar = UIToolbar(frame: .zero)
+        self.pickerView.translatesAutoresizingMaskIntoConstraints = false
+        let pickerView = UIBarButtonItem(customView: self.pickerView)
+        toolbar.setItems([pickerView], animated: false)
+        return toolbar
+    }()
+    private lazy var pickerToolbarTopConstraint: NSLayoutConstraint = {
+        searchTypeToolbar.bottomAnchor.constraint(equalTo: pickerToolbar.topAnchor)
+    }()
 
     private let event: Event
+    private let pickerToolbarHeight: CGFloat = 100
     private let disposeBag = DisposeBag()
     private let _navigationAction = PublishRelay<WKNavigationAction>()
     private var navigationActionPolicyDisposeBag = DisposeBag()
@@ -55,11 +67,13 @@ final class ParticipantListViewController: UIViewController {
                                                           navigationAction: self._navigationAction.asObservable(),
                                                           htmlDocument: self._htmlDocument.asObservable(),
                                                           loading: self._isLoading.asObservable(),
-                                                          numberText: self.numberSearchField.rx.text.asObservable(),
-                                                          cancelButtonTap: self.cancelButton.rx.tap.asObservable(),
-                                                          searchButtonTap: self.searchButton.rx.tap.asObservable(),
-                                                          cameraButtonTap: self.cameraButton.rx.tap.asObservable(),
-                                                          checkedActionStyle: self._checkedActionStyle.asObservable())
+                                                          searchText: self.searchBar.rx.text.asObservable(),
+                                                          cancelButtonTap: self.searchBar.rx.cancelButtonClicked.asObservable(),
+                                                          searchButtonTap: self.searchBar.rx.searchButtonClicked.asObservable(),
+                                                          selectorButtonTap: self.selectorButton.rx.tap.asObservable(),
+                                                          checkedActionStyle: self._checkedActionStyle.asObservable(),
+                                                          pickerItemSelected: self.pickerView.rx.itemSelected.asObservable(),
+                                                          tableViewItemSelected:  self.tableview.rx.itemSelected.asObservable())
 
     init(event: Event) {
         self.event = event
@@ -74,6 +88,7 @@ final class ParticipantListViewController: UIViewController {
         super.viewDidLoad()
 
         navigationItem.title = "Participant List"
+        navigationItem.rightBarButtonItem = refreshButton
 
         tableview.dataSource = self
         let nib = UINib(nibName: ParticipantCell.identifier, bundle: nil)
@@ -82,14 +97,32 @@ final class ParticipantListViewController: UIViewController {
 
         do {
             let toolbarHeight: CGFloat = 44
-            view.ex.addEdges([.left, .right], to: searchToolbar)
+            let elements = [
+                (ex.topAnchor, searchToolbar),
+                (searchToolbar.bottomAnchor, searchTypeToolbar)
+            ]
+            elements.forEach {
+                view.ex.addEdges([.left, .right], to: $1)
+                NSLayoutConstraint.activate([
+                    $0.constraint(equalTo: $1.topAnchor),
+                    $1.heightAnchor.constraint(equalToConstant: toolbarHeight)
+                ])
+            }
+
+            let height = toolbarHeight * CGFloat(elements.count)
+            tableview.contentInset.top = height
+            tableview.scrollIndicatorInsets.top = height
+            tableview.setContentOffset(CGPoint(x: 0, y: -height), animated: false)
+
+            pickerToolbar.translatesAutoresizingMaskIntoConstraints = false
+            view.insertSubview(pickerToolbar, belowSubview: searchToolbar)
+            pickerToolbarTopConstraint.constant = pickerToolbarHeight
             NSLayoutConstraint.activate([
-                ex.topAnchor.constraint(equalTo: searchToolbar.topAnchor),
-                searchToolbar.heightAnchor.constraint(equalToConstant: toolbarHeight)
+                pickerToolbarTopConstraint,
+                pickerToolbar.rightAnchor.constraint(equalTo: view.rightAnchor),
+                pickerToolbar.leftAnchor.constraint(equalTo: view.leftAnchor),
+                pickerToolbar.heightAnchor.constraint(equalToConstant: pickerToolbarHeight)
             ])
-            tableview.contentInset.top = toolbarHeight
-            tableview.scrollIndicatorInsets.top = toolbarHeight
-            tableview.setContentOffset(CGPoint(x: 0, y: -toolbarHeight), animated: false)
         }
 
         webview.navigationDelegate = self
@@ -126,8 +159,8 @@ final class ParticipantListViewController: UIViewController {
             .disposed(by: disposeBag)
 
         viewModel.closeKeyboard
-            .bind(to: Binder(numberSearchField) { textField, _ in
-                textField.resignFirstResponder()
+            .bind(to: Binder(searchBar) { searchBar, _ in
+                searchBar.resignFirstResponder()
             })
             .disposed(by: disposeBag)
 
@@ -145,12 +178,57 @@ final class ParticipantListViewController: UIViewController {
 
         viewModel.scrollTo
             .bind(to: Binder(tableview) { tableview, indexPath in
-                tableview.selectRow(at: indexPath, animated: true, scrollPosition: .top)
+                tableview.selectRow(at: indexPath, animated: true, scrollPosition: .none)
+                tableview.scrollToRow(at: indexPath, at: .top, animated: true)
                 DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak tableview] in
                     tableview?.deselectRow(at: indexPath, animated: true)
                 }
             })
             .disposed(by: disposeBag)
+
+        viewModel.clearSearchText
+            .bind(to: Binder(searchBar) { searchBar, _ in
+                searchBar.text = nil
+            })
+            .disposed(by: disposeBag)
+
+        viewModel.selectorTitle
+            .bind(to: selectorButton.rx.title)
+            .disposed(by: disposeBag)
+
+        viewModel.searchTypes
+            .bind(to: pickerView.rx.itemTitles) { $1.title }
+            .disposed(by: disposeBag)
+
+        viewModel.showPicker
+            .bind(to: Binder(self) { me,_ in
+                me.keyboardAnimation(topConstant: 0)
+            })
+            .disposed(by: disposeBag)
+
+        viewModel.hidePicker
+            .bind(to: Binder(self) { me, _ in
+                me.keyboardAnimation(topConstant: me.pickerToolbarHeight)
+            })
+            .disposed(by: disposeBag)
+
+        viewModel.keyboardType
+            .bind(to: Binder(searchBar) { $0.keyboardType = $1 })
+            .disposed(by: disposeBag)
+
+        viewModel.deselectIndexPath
+            .bind(to: Binder(tableview) {
+                $0.deselectRow(at: $1, animated: true)
+            })
+            .disposed(by: disposeBag)
+    }
+
+    private func keyboardAnimation(topConstant: CGFloat) {
+        view.layoutIfNeeded()
+        pickerToolbarTopConstraint.constant = topConstant
+        UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseOut, animations: {
+            self.view.layoutIfNeeded()
+        }, completion: nil)
     }
 }
 

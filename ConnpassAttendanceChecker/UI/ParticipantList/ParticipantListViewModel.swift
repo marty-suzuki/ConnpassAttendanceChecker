@@ -12,6 +12,7 @@ import RxSwift
 import RxCocoa
 import Kanna
 import CoreData
+import UIKit
 
 final class ParticipantListViewModel: NSObject {
     private enum Const {
@@ -22,6 +23,11 @@ final class ParticipantListViewModel: NSObject {
         let index: Int
         let title: String
         let message: String
+    }
+
+    enum SearchType: Enumerable {
+        case number
+        case name
     }
 
     let processPool: PropertyRelay<WKProcessPool>
@@ -35,8 +41,18 @@ final class ParticipantListViewModel: NSObject {
     let closeKeyboard: Observable<Void>
     let showCheckedAlert: Observable<CheckedAlertElement>
     let scrollTo: Observable<IndexPath>
+    let clearSearchText: Observable<Void>
+    let selectorTitle: Observable<String>
+    let searchTypes: Observable<[SearchType]>
+    let showPicker: Observable<Void>
+    let hidePicker: Observable<Void>
+    let keyboardType: Observable<UIKeyboardType>
+    let deselectIndexPath: Observable<IndexPath>
 
+    private let _searchTypes = BehaviorRelay<[SearchType]>(value: SearchType.elements)
+    private let _displayParticipants = BehaviorRelay<[Participant]>(value: [])
     private let _participants: BehaviorRelay<[Participant]>
+    private let _searchType = BehaviorRelay<SearchType>(value: .number)
     private let disposeBag = DisposeBag()
     private let fetchedResultsController: NSFetchedResultsController<StoredParticipant>
 
@@ -45,11 +61,13 @@ final class ParticipantListViewModel: NSObject {
          navigationAction: Observable<WKNavigationAction>,
          htmlDocument: Observable<HTMLDocument>,
          loading: Observable<Bool>,
-         numberText: Observable<String?>,
+         searchText: Observable<String?>,
          cancelButtonTap: Observable<Void>,
          searchButtonTap: Observable<Void>,
-         cameraButtonTap: Observable<Void>,
+         selectorButtonTap: Observable<Void>,
          checkedActionStyle: Observable<AlertActionStyle>,
+         pickerItemSelected: Observable<(row: Int, component: Int)>,
+         tableViewItemSelected: Observable<IndexPath>,
          processPool: WKProcessPool = .init(),
          database: Database = .shared) {
         let request: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
@@ -58,7 +76,12 @@ final class ParticipantListViewModel: NSObject {
         try? fetchedResultsController.performFetch()
         let results = fetchedResultsController.fetchedObjects ?? []
         self._participants = BehaviorRelay(value: results.map(Participant.init))
-        self.participants = PropertyRelay(_participants)
+        self.participants = PropertyRelay(_displayParticipants)
+        self.searchTypes = _searchTypes.asObservable()
+        self.selectorTitle = _searchType
+            .map { "Search Type: \($0.title)" }
+        self.keyboardType = _searchType
+            .map { $0.keyboardType }
 
         let _processPool = BehaviorRelay(value: processPool)
         self.processPool = PropertyRelay(_processPool)
@@ -81,37 +104,87 @@ final class ParticipantListViewModel: NSObject {
         let _scrollTo = PublishRelay<IndexPath>()
         self.scrollTo = _scrollTo.asObservable()
 
-        self.reloadData = _participants
-            .filter { !$0.isEmpty }
+        let _clearSearchText = PublishRelay<Void>()
+        self.clearSearchText = _clearSearchText.asObservable()
+
+        self.reloadData = _displayParticipants
             .map { _ in }
+
+        self.deselectIndexPath = checkedActionStyle
+            .filter { $0.isDestructive }
+            .withLatestFrom(_showCheckedAlert.map { $0.index })
+            .map { IndexPath(row: $0, section: 0) }
+
+        self.showPicker = selectorButtonTap
+        self.hidePicker = _searchType.map { _ in }.skip(1)
 
         let _closeKeyboard = PublishRelay<Void>()
         self.closeKeyboard = _closeKeyboard.asObservable()
 
-        let participantIndex = searchButtonTap
-            .withLatestFrom(numberText)
-            .unwrap()
-            .flatMap { Int($0).map(Observable.just) ?? .empty() }
-            .withLatestFrom(_participants) { ($0, $1) }
-            .map { number, participants -> Int? in
-                participants.index { $0.number == number }
-            }
-            .share()
+        _participants
+            .bind(to: _displayParticipants)
+            .disposed(by: disposeBag)
 
-        participantIndex
+        pickerItemSelected
+            .withLatestFrom(_searchTypes) { $1[$0.row] }
+            .bind(to: _searchType)
+            .disposed(by: disposeBag)
+
+        let textWithSeachType = searchText
             .unwrap()
+            .withLatestFrom(_searchType) { ($0, $1) }
+            .share(replay: 1, scope: .whileConnected)
+
+        let filteredParticipants1 = textWithSeachType
+            .filter { $1 == .number && !$0.isEmpty }
+            .flatMap { Int($0.0).map(Observable.just) ?? .empty() }
             .withLatestFrom(_participants) { ($0, $1) }
-            .map { index, participants in
-                let participant = participants[index]
+            .map { number, participants in
+                participants.filter { "\($0.number)".contains("\(number)") }
+            }
+
+        let filteredParticipants2 = textWithSeachType
+            .filter { $1 == .name  && !$0.isEmpty }
+            .withLatestFrom(_participants) { ($0.0, $1) }
+            .map { name, participants in
+                participants.filter {
+                    let name = name.lowercased()
+                    return $0.userName.lowercased().contains(name) ||
+                        $0.displayName.lowercased().contains(name)
+                }
+            }
+
+        let filteredParticipants3 = textWithSeachType
+            .filter { $0.0.isEmpty }
+            .withLatestFrom(_participants)
+
+        Observable.merge(filteredParticipants1,
+                         filteredParticipants2,
+                         filteredParticipants3)
+            .bind(to: _displayParticipants)
+            .disposed(by: disposeBag)
+
+        tableViewItemSelected
+            .withLatestFrom(_displayParticipants) { ($0.row, $1) }
+            .withLatestFrom(_participants) { ($0.0, $0.1, $1) }
+            .flatMap { index, displayParticipants, participants -> Observable<CheckedAlertElement> in
+                let participant = displayParticipants[index]
                 let strings = [
                     "Number: \(participant.number)",
                     "DisplayName: \(participant.displayName)",
                     "UserName: \(participant.userName)"
                 ]
                 let message = String(strings.joined(separator: "\n"))
-                return CheckedAlertElement(index: index,
-                                           title: "Do you check this participant?",
-                                           message: message)
+                guard let index = participants.index(where: {
+                    $0.number == participant.number &&
+                    $0.userName == participant.userName &&
+                    $0.displayName == participant.displayName
+                }) else {
+                    return .empty()
+                }
+                return .just(CheckedAlertElement(index: index,
+                                                 title: "Do you check in this participant?",
+                                                 message: message))
             }
             .bind(to: _showCheckedAlert)
             .disposed(by: disposeBag)
@@ -157,6 +230,11 @@ final class ParticipantListViewModel: NSObject {
                 .map { IndexPath(row: index, section: 0) }
             }
             .share()
+
+        updatedWithIndexPath
+            .map { _ in }
+            .bind(to: _clearSearchText)
+            .disposed(by: disposeBag)
 
         updatedWithIndexPath
             .bind(to: _scrollTo)
@@ -216,6 +294,8 @@ final class ParticipantListViewModel: NSObject {
             .disposed(by: disposeBag)
 
         Observable.merge(cancelButtonTap,
+                         selectorButtonTap,
+                         searchButtonTap,
                          updatedWithIndexPath.map { _ in })
             .bind(to: _closeKeyboard)
             .disposed(by: disposeBag)
@@ -230,5 +310,21 @@ extension ParticipantListViewModel: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         let participants = (controller.fetchedObjects as? [StoredParticipant]) ?? []
         _participants.accept(participants.compactMap(Participant.init))
+    }
+}
+
+extension ParticipantListViewModel.SearchType {
+    var title: String {
+        switch self {
+        case .number: return "Number"
+        case .name: return "Username or DisplayName"
+        }
+    }
+
+    var keyboardType: UIKeyboardType {
+        switch self {
+        case .number: return .numberPad
+        case .name: return .default
+        }
     }
 }
