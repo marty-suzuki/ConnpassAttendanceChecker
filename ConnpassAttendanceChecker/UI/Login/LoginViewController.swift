@@ -14,12 +14,14 @@ import RxCocoa
 final class LoginViewController: UIViewController {
     private let webview: WKWebView
     private let closeButton = UIBarButtonItem(title: "Close", style: .plain, target: nil, action: nil)
+    private let loadingView = LoadingView(frame: .zero)
 
     private let _navigationAction = PublishRelay<WKNavigationAction>()
     private var navigationActionPolicyDisposeBag = DisposeBag()
     private let disposeBag = DisposeBag()
     private lazy var viewModel = LoginViewModel(navigationAction: self._navigationAction.asObservable(),
-                                                closeButtonTap: self.closeButton.rx.tap.asObservable())
+                                                closeButtonTap: self.closeButton.rx.tap.asObservable(),
+                                                isLoading: self.webview.rx.loading)
 
     init(processPool: WKProcessPool) {
         self.webview = {
@@ -41,6 +43,9 @@ final class LoginViewController: UIViewController {
         webview.navigationDelegate = self
         view.ex.addEdges(to: webview)
 
+        loadingView.isHidden = true
+        view.ex.addEdges(to: loadingView)
+
         viewModel.loadRequest
             .bind(to: Binder(webview) { webview, request in
                 webview.load(request)
@@ -51,6 +56,10 @@ final class LoginViewController: UIViewController {
             .bind(to: Binder(self) { me, _ in
                 me.dismiss(animated: true, completion: nil)
             })
+            .disposed(by: disposeBag)
+
+        viewModel.hideLoading
+            .bind(to: loadingView.rx.isHidden)
             .disposed(by: disposeBag)
     }
 }

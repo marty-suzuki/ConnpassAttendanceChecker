@@ -73,6 +73,7 @@ final class ParticipantListViewModel {
          checkedActionStyle: Observable<AlertActionStyle>,
          pickerItemSelected: Observable<(row: Int, component: Int)>,
          tableViewItemSelected: Observable<IndexPath>,
+         didFinishNavigation: Observable<Void>,
          processPool: WKProcessPool = .init(),
          participantDataStore: ParticipantDataStore? = nil) {
         let _hideLoading = PublishRelay<Bool>()
@@ -190,10 +191,15 @@ final class ParticipantListViewModel {
             .map { $0.request.url }
             .share()
 
-        let containsLoginURLString = navigationActionURL
+        navigationActionURL
             .unwrap()
-            .map { $0.absoluteString.contains(Const.loginURLString) }
-            .share()
+            .withLatestFrom(_participantsURL.unwrap()) { ($0, $1) }
+            .map { $0.absoluteString.contains($1.absoluteString) }
+            .flatMapFirst { contains in
+                contains ? didFinishNavigation : .empty()
+            }
+            .bind(to: _getHTMLDocument)
+            .disposed(by: disposeBag)
 
         do {
             let showLoginCount = _showLoginIfNeeded
@@ -212,6 +218,11 @@ final class ParticipantListViewModel {
                 .bind(to: _close)
                 .disposed(by: disposeBag)
 
+            let containsLoginURLString = navigationActionURL
+                .unwrap()
+                .map { $0.absoluteString.contains(Const.loginURLString) }
+                .share()
+
             let policy = containsLoginURLString
                 .map { contains -> WKNavigationActionPolicy in
                     contains ? .cancel : .allow
@@ -229,22 +240,6 @@ final class ParticipantListViewModel {
                 .filter { $0 }
                 .map { _ in }
                 .bind(to: _showLoginIfNeeded)
-                .disposed(by: disposeBag)
-        }
-
-        do {
-            let containgParticipantsURLString = navigationActionURL
-                .unwrap()
-                .withLatestFrom(_participantsURL.unwrap()) { ($0, $1) }
-                .map { $0.absoluteString.contains($1.absoluteString) }
-
-            Observable.combineLatest(loading,
-                                     containsLoginURLString,
-                                     containgParticipantsURLString)
-                .distinctUntilChanged(==)
-                .filter { !$0 && !$1 && $2 }
-                .map { _ in }
-                .bind(to: _getHTMLDocument)
                 .disposed(by: disposeBag)
         }
 

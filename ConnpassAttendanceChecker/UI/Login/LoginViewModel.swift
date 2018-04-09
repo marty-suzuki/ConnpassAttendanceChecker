@@ -20,11 +20,14 @@ final class LoginViewModel {
     let navigationActionPolicy: Observable<WKNavigationActionPolicy>
     let close: Observable<Void>
     let loadRequest: Observable<URLRequest>
+    let hideLoading: Observable<Bool>
 
     private let disposeBag = DisposeBag()
 
     init(navigationAction: Observable<WKNavigationAction>,
-         closeButtonTap: Observable<Void>) {
+         closeButtonTap: Observable<Void>,
+         isLoading: Observable<Bool>) {
+        self.hideLoading = isLoading.map { !$0 }
         let _navigationActionPolicy = PublishRelay<WKNavigationActionPolicy>()
         self.navigationActionPolicy = _navigationActionPolicy.asObservable()
         let _close = PublishRelay<Void>()

@@ -59,6 +59,7 @@ final class ParticipantListViewController: UIViewController {
     private let pickerToolbarHeight: CGFloat = 100
     private let disposeBag = DisposeBag()
     private let _navigationAction = PublishRelay<WKNavigationAction>()
+    private let _didFinishNavigation = PublishRelay<Void>()
     private var navigationActionPolicyDisposeBag = DisposeBag()
     private let _htmlDocument = PublishRelay<HTMLDocument>()
     private let _isLoading = PublishRelay<Bool>()
@@ -75,7 +76,8 @@ final class ParticipantListViewController: UIViewController {
                                                           refreshButtonTap: self.refreshButton.rx.tap.asObservable(),
                                                           checkedActionStyle: self._checkedActionStyle.asObservable(),
                                                           pickerItemSelected: self.pickerView.rx.itemSelected.asObservable(),
-                                                          tableViewItemSelected:  self.tableview.rx.itemSelected.asObservable())
+                                                          tableViewItemSelected:  self.tableview.rx.itemSelected.asObservable(),
+                                                          didFinishNavigation: self._didFinishNavigation.asObservable())
 
     init(event: Event) {
         self.event = event
@@ -151,6 +153,7 @@ final class ParticipantListViewController: UIViewController {
             .disposed(by: disposeBag)
 
         viewModel.getHTMLDocument
+            .observeOn(MainScheduler.instance)
             .flatMapLatest { [weak webview] _ in
                 webview.map { $0.rx.html() } ?? .empty()
             }
@@ -274,5 +277,9 @@ extension ParticipantListViewController: WKNavigationDelegate {
             .disposed(by: navigationActionPolicyDisposeBag)
 
         _navigationAction.accept(navigationAction)
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        _didFinishNavigation.accept(())
     }
 }
