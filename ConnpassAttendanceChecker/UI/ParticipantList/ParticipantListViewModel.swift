@@ -14,7 +14,7 @@ import Kanna
 import CoreData
 import UIKit
 
-final class ParticipantListViewModel: NSObject {
+final class ParticipantListViewModel {
     private enum Const {
         static let loginURLString = "https://connpass.com/login"
     }
@@ -23,6 +23,8 @@ final class ParticipantListViewModel: NSObject {
         let index: Int
         let title: String
         let message: String
+        let actions: [AlertActionStyle]
+        let isChecked: Bool
     }
 
     enum SearchType: Enumerable {
@@ -48,13 +50,15 @@ final class ParticipantListViewModel: NSObject {
     let hidePicker: Observable<Void>
     let keyboardType: Observable<UIKeyboardType>
     let deselectIndexPath: Observable<IndexPath>
+    let hideLoading: Observable<Bool>
+    let enableRefresh: Observable<Bool>
+    let close: Observable<Void>
 
     private let _searchTypes = BehaviorRelay<[SearchType]>(value: SearchType.elements)
     private let _displayParticipants = BehaviorRelay<[Participant]>(value: [])
-    private let _participants: BehaviorRelay<[Participant]>
     private let _searchType = BehaviorRelay<SearchType>(value: .number)
     private let disposeBag = DisposeBag()
-    private let fetchedResultsController: NSFetchedResultsController<StoredParticipant>
+    private let dataStore: ParticipantDataStore
 
     init(event: Event,
          viewDidAppear: Observable<Bool>,
@@ -65,17 +69,56 @@ final class ParticipantListViewModel: NSObject {
          cancelButtonTap: Observable<Void>,
          searchButtonTap: Observable<Void>,
          selectorButtonTap: Observable<Void>,
+         refreshButtonTap: Observable<Void>,
          checkedActionStyle: Observable<AlertActionStyle>,
          pickerItemSelected: Observable<(row: Int, component: Int)>,
          tableViewItemSelected: Observable<IndexPath>,
          processPool: WKProcessPool = .init(),
-         database: Database = .shared) {
-        let request: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(key: "number", ascending: false)]
-        self.fetchedResultsController = database.makeFetchedResultsController(fetchRequest: request)
-        try? fetchedResultsController.performFetch()
-        let results = fetchedResultsController.fetchedObjects ?? []
-        self._participants = BehaviorRelay(value: results.map(Participant.init))
+         participantDataStore: ParticipantDataStore? = nil) {
+        let _hideLoading = PublishRelay<Bool>()
+        self.hideLoading = _hideLoading.asObservable()
+
+        let _close = PublishRelay<Void>()
+        self.close = _close.asObservable()
+
+        let _showCheckedAlert = PublishRelay<CheckedAlertElement>()
+        self.showCheckedAlert = _showCheckedAlert.asObservable()
+
+        let textWithSeachType = searchText
+            .unwrap()
+            .withLatestFrom(_searchType) { ($0, $1) }
+            .share(replay: 1, scope: .whileConnected)
+
+        if let participantDataStore = participantDataStore {
+            self.dataStore = participantDataStore
+        } else {
+            let updateChehckedWithIndex = checkedActionStyle
+                .filter { $0.isDefault }
+                .withLatestFrom(_showCheckedAlert)
+                .map { (!$0.isChecked, $0.index) }
+
+            let name = textWithSeachType
+                .filter { $1 == .name  && !$0.isEmpty }
+                .map { $0.0 }
+
+            let number = textWithSeachType
+                .filter { $1 == .number && !$0.isEmpty }
+                .flatMap { Int($0.0).map(Observable.just) ?? .empty() }
+
+            let participant = tableViewItemSelected
+                .withLatestFrom(_displayParticipants) { $1[$0.row] }
+
+            self.dataStore = ParticipantDataStore(event: event,
+                                                  htmlDocument: htmlDocument,
+                                                  updateChehckedWithIndex: updateChehckedWithIndex,
+                                                  filterWithNunmber: number,
+                                                  filterWithName: name,
+                                                  indexOfParticipant: participant)
+        }
+
+        self.enableRefresh = Observable.combineLatest(dataStore.participants, _hideLoading)
+            .map { !$0.isEmpty && $1 }
+
         self.participants = PropertyRelay(_displayParticipants)
         self.searchTypes = _searchTypes.asObservable()
         self.selectorTitle = _searchType
@@ -92,14 +135,12 @@ final class ParticipantListViewModel: NSObject {
         let _navigationActionPolicy = PublishRelay<WKNavigationActionPolicy>()
         self.navigationActionPolicy = _navigationActionPolicy.asObservable()
 
+        let _showLoginIfNeeded = PublishRelay<Void>()
         let _showLogin = PublishRelay<WKProcessPool>()
         self.showLogin = _showLogin.asObservable()
 
         let _getHTMLDocument = PublishRelay<Void>()
         self.getHTMLDocument = _getHTMLDocument.asObservable()
-
-        let _showCheckedAlert = PublishRelay<CheckedAlertElement>()
-        self.showCheckedAlert = _showCheckedAlert.asObservable()
 
         let _scrollTo = PublishRelay<IndexPath>()
         self.scrollTo = _scrollTo.asObservable()
@@ -112,8 +153,7 @@ final class ParticipantListViewModel: NSObject {
 
         self.deselectIndexPath = checkedActionStyle
             .filter { $0.isDestructive }
-            .withLatestFrom(_showCheckedAlert.map { $0.index })
-            .map { IndexPath(row: $0, section: 0) }
+            .withLatestFrom(tableViewItemSelected)
 
         self.showPicker = selectorButtonTap
         self.hidePicker = _searchType.map { _ in }.skip(1)
@@ -121,7 +161,7 @@ final class ParticipantListViewModel: NSObject {
         let _closeKeyboard = PublishRelay<Void>()
         self.closeKeyboard = _closeKeyboard.asObservable()
 
-        _participants
+        dataStore.participants
             .bind(to: _displayParticipants)
             .disposed(by: disposeBag)
 
@@ -130,114 +170,20 @@ final class ParticipantListViewModel: NSObject {
             .bind(to: _searchType)
             .disposed(by: disposeBag)
 
-        let textWithSeachType = searchText
-            .unwrap()
-            .withLatestFrom(_searchType) { ($0, $1) }
-            .share(replay: 1, scope: .whileConnected)
+        do {
+            let filteredParticipants = textWithSeachType
+                .filter { $0.0.isEmpty }
+                .withLatestFrom(dataStore.participants)
 
-        let filteredParticipants1 = textWithSeachType
-            .filter { $1 == .number && !$0.isEmpty }
-            .flatMap { Int($0.0).map(Observable.just) ?? .empty() }
-            .withLatestFrom(_participants) { ($0, $1) }
-            .map { number, participants in
-                participants.filter { "\($0.number)".contains("\(number)") }
-            }
+            Observable.merge(filteredParticipants,
+                             dataStore.filteredParticipants)
+                .bind(to: _displayParticipants)
+                .disposed(by: disposeBag)
+        }
 
-        let filteredParticipants2 = textWithSeachType
-            .filter { $1 == .name  && !$0.isEmpty }
-            .withLatestFrom(_participants) { ($0.0, $1) }
-            .map { name, participants in
-                participants.filter {
-                    let name = name.lowercased()
-                    return $0.userName.lowercased().contains(name) ||
-                        $0.displayName.lowercased().contains(name)
-                }
-            }
-
-        let filteredParticipants3 = textWithSeachType
-            .filter { $0.0.isEmpty }
-            .withLatestFrom(_participants)
-
-        Observable.merge(filteredParticipants1,
-                         filteredParticipants2,
-                         filteredParticipants3)
-            .bind(to: _displayParticipants)
-            .disposed(by: disposeBag)
-
-        tableViewItemSelected
-            .withLatestFrom(_displayParticipants) { ($0.row, $1) }
-            .withLatestFrom(_participants) { ($0.0, $0.1, $1) }
-            .flatMap { index, displayParticipants, participants -> Observable<CheckedAlertElement> in
-                let participant = displayParticipants[index]
-                let strings = [
-                    "Number: \(participant.number)",
-                    "DisplayName: \(participant.displayName)",
-                    "UserName: \(participant.userName)"
-                ]
-                let message = String(strings.joined(separator: "\n"))
-                guard let index = participants.index(where: {
-                    $0.number == participant.number &&
-                    $0.userName == participant.userName &&
-                    $0.displayName == participant.displayName
-                }) else {
-                    return .empty()
-                }
-                return .just(CheckedAlertElement(index: index,
-                                                 title: "Do you check in this participant?",
-                                                 message: message))
-            }
+        dataStore.indexAndParticipant
+            .map(CheckedAlertElement.init)
             .bind(to: _showCheckedAlert)
-            .disposed(by: disposeBag)
-
-        htmlDocument
-            .map { [event] in Participant.list(from: $0, eventID: event.id) }
-            .flatMap { participants -> Single<Void> in
-                database.perform(block: { context in
-                    participants.forEach { participant in
-                        let model = StoredParticipant(context: context)
-                        model.number = Int64(participant.number)
-                        model.ptype = participant.ptype
-                        model.displayName = participant.displayName
-                        model.userName = participant.userName
-                        model.eventID = Int64(participant.eventID)
-                    }
-                })
-            }
-            .subscribe()
-            .disposed(by: disposeBag)
-
-        let updatedWithIndexPath = checkedActionStyle
-            .filter { $0.isDefault }
-            .withLatestFrom(_showCheckedAlert.map { $0.index })
-            .withLatestFrom(_participants) { ($0, $1) }
-            .flatMap { index, participants -> Observable<IndexPath> in
-                let participant = participants[index]
-                return database.perform(block: { context in
-                    let request: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
-                    request.fetchLimit = 1
-                    request.predicate = NSPredicate(format: "number = %lld AND eventID = %lld",
-                                                    participant.number,
-                                                    participant.eventID)
-
-                    guard let object = try context.fetch(request).first else {
-                        throw Database.Error.objectNotFound
-                    }
-
-                    object.isChecked = true
-                })
-                .asObservable()
-                .catchError { _ in .empty() }
-                .map { IndexPath(row: index, section: 0) }
-            }
-            .share()
-
-        updatedWithIndexPath
-            .map { _ in }
-            .bind(to: _clearSearchText)
-            .disposed(by: disposeBag)
-
-        updatedWithIndexPath
-            .bind(to: _scrollTo)
             .disposed(by: disposeBag)
 
         let navigationActionURL = navigationAction
@@ -250,6 +196,22 @@ final class ParticipantListViewModel: NSObject {
             .share()
 
         do {
+            let showLoginCount = _showLoginIfNeeded
+                .scan(Int(0)) { result, _ in result + 1 }
+                .share()
+
+            showLoginCount
+                .filter { $0 == 1 }
+                .withLatestFrom(_processPool)
+                .bind(to: _showLogin)
+                .disposed(by: disposeBag)
+
+            showLoginCount
+                .filter { $0 > 1 }
+                .map { _ in }
+                .bind(to: _close)
+                .disposed(by: disposeBag)
+
             let policy = containsLoginURLString
                 .map { contains -> WKNavigationActionPolicy in
                     contains ? .cancel : .allow
@@ -265,51 +227,83 @@ final class ParticipantListViewModel: NSObject {
 
             containsLoginURLString
                 .filter { $0 }
-                .withLatestFrom(_processPool)
-                .bind(to: _showLogin)
+                .map { _ in }
+                .bind(to: _showLoginIfNeeded)
                 .disposed(by: disposeBag)
         }
 
-        let containgParticipantsURLString = navigationActionURL
-            .unwrap()
-            .withLatestFrom(_participantsURL.unwrap()) { ($0, $1) }
-            .filter { $0.absoluteString.contains($1.absoluteString) }
-            .map { _ in }
+        do {
+            let containgParticipantsURLString = navigationActionURL
+                .unwrap()
+                .withLatestFrom(_participantsURL.unwrap()) { ($0, $1) }
+                .map { $0.absoluteString.contains($1.absoluteString) }
 
-        Observable.combineLatest(loading,
-                                 containsLoginURLString,
-                                 containgParticipantsURLString)
-            .filter { !$0.0 && !$0.1 }
-            .map { _ in }
-            .bind(to: _getHTMLDocument)
-            .disposed(by: disposeBag)
+            Observable.combineLatest(loading,
+                                     containsLoginURLString,
+                                     containgParticipantsURLString)
+                .distinctUntilChanged(==)
+                .filter { !$0 && !$1 && $2 }
+                .map { _ in }
+                .bind(to: _getHTMLDocument)
+                .disposed(by: disposeBag)
+        }
 
-        let fetchParticipants = Observable.combineLatest(viewDidAppear, _participants)
-            .filter { $1.isEmpty }
-            .map { _ in }
+        do {
+            let updatedWithIndexPath = dataStore.updatedIndex
+                .map { IndexPath(row: $0, section: 0) }
+                .share()
 
-        fetchParticipants
-            .map { [event] in URL(string: "https://connpass.com/event/\(event.id)/participants") }
-            .bind(to: _participantsURL)
-            .disposed(by: disposeBag)
+            updatedWithIndexPath
+                .map { _ in }
+                .bind(to: _clearSearchText)
+                .disposed(by: disposeBag)
 
-        Observable.merge(cancelButtonTap,
-                         selectorButtonTap,
-                         searchButtonTap,
-                         updatedWithIndexPath.map { _ in })
-            .bind(to: _closeKeyboard)
-            .disposed(by: disposeBag)
+            updatedWithIndexPath
+                .bind(to: _scrollTo)
+                .disposed(by: disposeBag)
 
-        super.init()
+            Observable.merge(cancelButtonTap,
+                             selectorButtonTap,
+                             searchButtonTap,
+                             updatedWithIndexPath.map { _ in })
+                .bind(to: _closeKeyboard)
+                .disposed(by: disposeBag)
+        }
 
-        fetchedResultsController.delegate = self
+        do {
+            let fetchParticipants = Observable.combineLatest(viewDidAppear, dataStore.participants)
+                .filter { $1.isEmpty }
+                .map { _ in }
+
+            let startFetching = Observable.merge(fetchParticipants, refreshButtonTap)
+                .share()
+
+            startFetching
+                .map { [event] in URL(string: "https://connpass.com/event/\(event.id)/participants/") }
+                .bind(to: _participantsURL)
+                .disposed(by: disposeBag)
+
+            Observable.merge(startFetching.map { false },
+                             dataStore.htmlUpdated.map { true })
+                .bind(to: _hideLoading)
+                .disposed(by: disposeBag)
+        }
     }
 }
 
-extension ParticipantListViewModel: NSFetchedResultsControllerDelegate {
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        let participants = (controller.fetchedObjects as? [StoredParticipant]) ?? []
-        _participants.accept(participants.compactMap(Participant.init))
+extension ParticipantListViewModel.CheckedAlertElement {
+    fileprivate init(index: Int, participant: Participant) {
+        let strings = [
+            "Number: \(participant.number)",
+            "DisplayName: \(participant.displayName)",
+            "UserName: \(participant.userName)"
+        ]
+        let string = "Check \(participant.isChecked ? "Out" : "In")"
+        self.index = index
+        self.title = "Do you \(string) this participant?"
+        self.message = String(strings.joined(separator: "\n"))
+        self.isChecked = participant.isChecked
+        self.actions = [.default(string), .destructive("Cancel")]
     }
 }
 

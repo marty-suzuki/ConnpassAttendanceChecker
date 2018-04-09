@@ -42,6 +42,8 @@
 		37CFC88D2077C888008C936C /* RxSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37CFC88B2077C888008C936C /* RxSwift.framework */; };
 		37EDE3CE2079160F008F7475 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EDE3CD2079160F008F7475 /* LoginViewModel.swift */; };
 		37EDE3D1207A88BF008F7475 /* Enumerable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EDE3D0207A88BF008F7475 /* Enumerable.swift */; };
+		37EDE3D3207B9997008F7475 /* ParticipantDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EDE3D2207B9997008F7475 /* ParticipantDataStore.swift */; };
+		37F09A83207BD8DB00776079 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A82207BD8DB00776079 /* LoadingView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,6 +97,8 @@
 		37CFC88B2077C888008C936C /* RxSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxSwift.framework; path = Carthage/Build/iOS/RxSwift.framework; sourceTree = "<group>"; };
 		37EDE3CD2079160F008F7475 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		37EDE3D0207A88BF008F7475 /* Enumerable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enumerable.swift; sourceTree = "<group>"; };
+		37EDE3D2207B9997008F7475 /* ParticipantDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantDataStore.swift; sourceTree = "<group>"; };
+		37F09A82207BD8DB00776079 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,6 +170,7 @@
 		373FB7E92077E217007A5CE2 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				37F09A81207BD8BF00776079 /* Common */,
 				37297F99207815670019A4EF /* Login */,
 				37297F98207812B30019A4EF /* ParticipantList */,
 				373FB7FE2077EBC7007A5CE2 /* EventList */,
@@ -177,12 +182,9 @@
 		373FB7F82077EA1D007A5CE2 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				373FB7F42077E8B3007A5CE2 /* Event.swift */,
-				373FB7EA2077E251007A5CE2 /* Participant.swift */,
-				373FB7EC2077E876007A5CE2 /* StoredParticipant+CoreDataClass.swift */,
-				373FB7ED2077E876007A5CE2 /* StoredParticipant+CoreDataProperties.swift */,
-				373FB7EE2077E876007A5CE2 /* StoredEvent+CoreDataClass.swift */,
-				373FB7EF2077E876007A5CE2 /* StoredEvent+CoreDataProperties.swift */,
+				37EDE3D5207B9E85008F7475 /* DataStore */,
+				37EDE3D6207B9E99008F7475 /* Entity */,
+				37EDE3D4207B9E78008F7475 /* ManagedObject */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -268,6 +270,42 @@
 				37EDE3D0207A88BF008F7475 /* Enumerable.swift */,
 			);
 			path = Protocol;
+			sourceTree = "<group>";
+		};
+		37EDE3D4207B9E78008F7475 /* ManagedObject */ = {
+			isa = PBXGroup;
+			children = (
+				373FB7EC2077E876007A5CE2 /* StoredParticipant+CoreDataClass.swift */,
+				373FB7ED2077E876007A5CE2 /* StoredParticipant+CoreDataProperties.swift */,
+				373FB7EE2077E876007A5CE2 /* StoredEvent+CoreDataClass.swift */,
+				373FB7EF2077E876007A5CE2 /* StoredEvent+CoreDataProperties.swift */,
+			);
+			path = ManagedObject;
+			sourceTree = "<group>";
+		};
+		37EDE3D5207B9E85008F7475 /* DataStore */ = {
+			isa = PBXGroup;
+			children = (
+				37EDE3D2207B9997008F7475 /* ParticipantDataStore.swift */,
+			);
+			path = DataStore;
+			sourceTree = "<group>";
+		};
+		37EDE3D6207B9E99008F7475 /* Entity */ = {
+			isa = PBXGroup;
+			children = (
+				373FB7F42077E8B3007A5CE2 /* Event.swift */,
+				373FB7EA2077E251007A5CE2 /* Participant.swift */,
+			);
+			path = Entity;
+			sourceTree = "<group>";
+		};
+		37F09A81207BD8BF00776079 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				37F09A82207BD8DB00776079 /* LoadingView.swift */,
+			);
+			path = Common;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -400,7 +438,9 @@
 				373FB7F52077E8B3007A5CE2 /* Event.swift in Sources */,
 				373FB7F02077E876007A5CE2 /* StoredParticipant+CoreDataClass.swift in Sources */,
 				373FB7F22077E876007A5CE2 /* StoredEvent+CoreDataClass.swift in Sources */,
+				37F09A83207BD8DB00776079 /* LoadingView.swift in Sources */,
 				37297F8B2077FBE50019A4EF /* UIAlertController.extension.swift in Sources */,
+				37EDE3D3207B9997008F7475 /* ParticipantDataStore.swift in Sources */,
 				37297F8D207806AC0019A4EF /* Database.swift in Sources */,
 				37297F97207812A20019A4EF /* ParticipantListViewController.swift in Sources */,
 				37297F822077EDCE0019A4EF /* EventRegisterViewController.swift in Sources */,

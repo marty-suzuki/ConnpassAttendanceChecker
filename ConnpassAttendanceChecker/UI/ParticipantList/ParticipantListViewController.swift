@@ -17,6 +17,7 @@ final class ParticipantListViewController: UIViewController {
     private let refreshButton = UIBarButtonItem(barButtonSystemItem: .refresh, target: nil, action: nil)
     private let selectorButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
     private let pickerView = UIPickerView(frame: .zero)
+    private let loadingView = LoadingView(frame: .zero)
     private lazy var webview: WKWebView = {
         let config = WKWebViewConfiguration()
         config.processPool = viewModel.processPool.value
@@ -71,6 +72,7 @@ final class ParticipantListViewController: UIViewController {
                                                           cancelButtonTap: self.searchBar.rx.cancelButtonClicked.asObservable(),
                                                           searchButtonTap: self.searchBar.rx.searchButtonClicked.asObservable(),
                                                           selectorButtonTap: self.selectorButton.rx.tap.asObservable(),
+                                                          refreshButtonTap: self.refreshButton.rx.tap.asObservable(),
                                                           checkedActionStyle: self._checkedActionStyle.asObservable(),
                                                           pickerItemSelected: self.pickerView.rx.itemSelected.asObservable(),
                                                           tableViewItemSelected:  self.tableview.rx.itemSelected.asObservable())
@@ -125,6 +127,9 @@ final class ParticipantListViewController: UIViewController {
             ])
         }
 
+        loadingView.isHidden = true
+        view.ex.addEdges(to: loadingView)
+
         webview.navigationDelegate = self
 
         webview.rx.loading
@@ -170,7 +175,7 @@ final class ParticipantListViewController: UIViewController {
                     UIAlertController(title: element.title,
                                       message: element.message,
                                       preferredStyle: .alert)
-                        .ex.show(with: [.default("YES"), .destructive("NO")], to: $0)
+                        .ex.show(with: element.actions, to: $0)
                 } ?? .empty()
             }
             .bind(to: _checkedActionStyle)
@@ -219,6 +224,20 @@ final class ParticipantListViewController: UIViewController {
         viewModel.deselectIndexPath
             .bind(to: Binder(tableview) {
                 $0.deselectRow(at: $1, animated: true)
+            })
+            .disposed(by: disposeBag)
+
+        viewModel.hideLoading
+            .bind(to: loadingView.rx.isHidden)
+            .disposed(by: disposeBag)
+
+        viewModel.enableRefresh
+            .bind(to: refreshButton.rx.isEnabled)
+            .disposed(by: disposeBag)
+
+        viewModel.close
+            .bind(to: Binder(self) { me, _ in
+                me.navigationController?.popViewController(animated: true)
             })
             .disposed(by: disposeBag)
     }
