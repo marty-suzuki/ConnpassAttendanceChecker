@@ -20,7 +20,7 @@ final class ParticipantListViewController: UIViewController {
     private let loadingView = LoadingView(frame: .zero)
     private lazy var webview: WKWebView = {
         let config = WKWebViewConfiguration()
-        config.processPool = viewModel.processPool.value
+        config.processPool = self.processPool
         return WKWebView(frame: .zero, configuration: config)
     }()
     private lazy var searchBar: UISearchBar = {
@@ -56,6 +56,8 @@ final class ParticipantListViewController: UIViewController {
     }()
 
     private let event: Event
+    private let processPool: WKProcessPool
+    private let loggedOut: AnyObserver<Void>
     private let pickerToolbarHeight: CGFloat = 100
     private let disposeBag = DisposeBag()
     private let _navigationAction = PublishRelay<WKNavigationAction>()
@@ -77,10 +79,15 @@ final class ParticipantListViewController: UIViewController {
                                                           checkedActionStyle: self._checkedActionStyle.asObservable(),
                                                           pickerItemSelected: self.pickerView.rx.itemSelected.asObservable(),
                                                           tableViewItemSelected:  self.tableview.rx.itemSelected.asObservable(),
-                                                          didFinishNavigation: self._didFinishNavigation.asObservable())
+                                                          didFinishNavigation: self._didFinishNavigation.asObservable(),
+                                                          loggedOut: self.loggedOut)
 
-    init(event: Event) {
+    init(event: Event,
+         processPool: WKProcessPool,
+         loggedOut: AnyObserver<Void>) {
         self.event = event
+        self.processPool = processPool
+        self.loggedOut = loggedOut
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -141,14 +148,6 @@ final class ParticipantListViewController: UIViewController {
         viewModel.participantsURL
             .bind(to: Binder(webview) { webview, url in
                 webview.load(URLRequest(url: url))
-            })
-            .disposed(by: disposeBag)
-
-        viewModel.showLogin
-            .bind(to: Binder(self) { me, processPool in
-                //let vc = LoginViewController(processPool: processPool)
-                //let nc = UINavigationController(rootViewController: vc)
-                //me.present(nc, animated: true, completion: nil)
             })
             .disposed(by: disposeBag)
 

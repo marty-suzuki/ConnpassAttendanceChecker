@@ -69,7 +69,9 @@ final class EventListViewController: UIViewController {
 
         viewModel.selectedEvent
             .bind(to: Binder(self) { me, event in
-                let vc = ParticipantListViewController(event: event)
+                let vc = ParticipantListViewController(event: event,
+                                                       processPool: me.processPool,
+                                                       loggedOut: me.loggedOut)
                 me.navigationController?.pushViewController(vc, animated: true)
             })
             .disposed(by: disposeBag)

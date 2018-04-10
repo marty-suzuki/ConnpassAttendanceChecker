@@ -32,13 +32,11 @@ final class ParticipantListViewModel {
         case name
     }
 
-    let processPool: PropertyRelay<WKProcessPool>
     let participants: PropertyRelay<[Participant]>
 
     let reloadData: Observable<Void>
     let participantsURL: Observable<URL>
     let navigationActionPolicy: Observable<WKNavigationActionPolicy>
-    let showLogin: Observable<WKProcessPool>
     let getHTMLDocument: Observable<Void>
     let closeKeyboard: Observable<Void>
     let showCheckedAlert: Observable<CheckedAlertElement>
@@ -74,7 +72,7 @@ final class ParticipantListViewModel {
          pickerItemSelected: Observable<(row: Int, component: Int)>,
          tableViewItemSelected: Observable<IndexPath>,
          didFinishNavigation: Observable<Void>,
-         processPool: WKProcessPool = .init(),
+         loggedOut: AnyObserver<Void>,
          participantDataStore: ParticipantDataStore? = nil) {
         let _hideLoading = PublishRelay<Bool>()
         self.hideLoading = _hideLoading.asObservable()
@@ -127,18 +125,11 @@ final class ParticipantListViewModel {
         self.keyboardType = _searchType
             .map { $0.keyboardType }
 
-        let _processPool = BehaviorRelay(value: processPool)
-        self.processPool = PropertyRelay(_processPool)
-
         let _participantsURL = BehaviorRelay<URL?>(value: nil)
         self.participantsURL = _participantsURL.unwrap()
 
         let _navigationActionPolicy = PublishRelay<WKNavigationActionPolicy>()
         self.navigationActionPolicy = _navigationActionPolicy.asObservable()
-
-        let _showLoginIfNeeded = PublishRelay<Void>()
-        let _showLogin = PublishRelay<WKProcessPool>()
-        self.showLogin = _showLogin.asObservable()
 
         let _getHTMLDocument = PublishRelay<Void>()
         self.getHTMLDocument = _getHTMLDocument.asObservable()
@@ -202,22 +193,6 @@ final class ParticipantListViewModel {
             .disposed(by: disposeBag)
 
         do {
-            let showLoginCount = _showLoginIfNeeded
-                .scan(Int(0)) { result, _ in result + 1 }
-                .share()
-
-            showLoginCount
-                .filter { $0 == 1 }
-                .withLatestFrom(_processPool)
-                .bind(to: _showLogin)
-                .disposed(by: disposeBag)
-
-            showLoginCount
-                .filter { $0 > 1 }
-                .map { _ in }
-                .bind(to: _close)
-                .disposed(by: disposeBag)
-
             let containsLoginURLString = navigationActionURL
                 .unwrap()
                 .map { $0.absoluteString.contains(Const.loginURLString) }
@@ -239,7 +214,7 @@ final class ParticipantListViewModel {
             containsLoginURLString
                 .filter { $0 }
                 .map { _ in }
-                .bind(to: _showLoginIfNeeded)
+                .bind(to: loggedOut)
                 .disposed(by: disposeBag)
         }
 
