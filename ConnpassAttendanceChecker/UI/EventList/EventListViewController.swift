@@ -14,10 +14,12 @@ import WebKit
 final class EventListViewController: UIViewController {
     private let tableview = UITableView(frame: .zero)
     private let refreshButton = UIBarButtonItem(barButtonSystemItem: .refresh, target: nil, action: nil)
+    private let logoutButton = UIBarButtonItem(title: "Logout", style: .plain, target: nil, action: nil)
     private let loadingView = LoadingView(frame: .zero)
 
     private lazy var viewModel = EventListViewModel(viewDidAppear: self.ex.viewDidAppear,
                                                     refreshButtonTap: self.refreshButton.rx.tap.asObservable(),
+                                                    logoutButtonTap: self.logoutButton.rx.tap.asObservable(),
                                                     itemSelected: self.tableview.rx.itemSelected.asObservable(),
                                                     navigationAction: self.hookView.navigationAction,
                                                     didFinishNavigation: self.hookView.didFinishNavigation,
@@ -52,6 +54,7 @@ final class EventListViewController: UIViewController {
 
         view.ex.addEdges(to: tableview)
         navigationItem.rightBarButtonItem = refreshButton
+        navigationItem.leftBarButtonItem = logoutButton
         navigationItem.title = "Connpass Event List"
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
 

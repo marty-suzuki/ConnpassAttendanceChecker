@@ -16,6 +16,8 @@ import Kanna
 final class EventListViewModel {
     private enum Const {
         static let eventManageURLString = "https://connpass.com/editmanage/"
+        static let logoutURLString = "https://connpass.com/logout/"
+        static let rootURLString = "https://connpass.com/"
     }
 
     let events: PropertyRelay<[Event]>
@@ -31,6 +33,7 @@ final class EventListViewModel {
 
     init(viewDidAppear: Observable<Bool>,
          refreshButtonTap: Observable<Void>,
+         logoutButtonTap: Observable<Void>,
          itemSelected: Observable<IndexPath>,
          navigationAction: Observable<WKNavigationAction>,
          didFinishNavigation: Observable<Void>,
@@ -51,7 +54,6 @@ final class EventListViewModel {
                 .flatMapFirst { contains in
                     contains ? htmlDocument : .empty()
                 }
-                .debug()
 
             self.dataStore = EventDataStore(htmlDocument: doc)
         }
@@ -71,11 +73,18 @@ final class EventListViewModel {
         let startFetching = Observable.merge(fetchEvents, refreshButtonTap)
             .share()
 
-        self.loadRequest = startFetching
-            .map { _ in Const.eventManageURLString }
-            .flatMap { URL(string: $0).map(Observable.just) ?? .empty() }
-            .map { URLRequest(url: $0) }
-            .share()
+        self.loadRequest = {
+            let eventManageURLString = startFetching
+                .map { _ in Const.eventManageURLString }
+
+            let logoutURLString = logoutButtonTap
+                .map { _ in Const.logoutURLString }
+
+            return Observable.merge(eventManageURLString, logoutURLString)
+                .flatMap { URL(string: $0).map(Observable.just) ?? .empty() }
+                .map { URLRequest(url: $0) }
+                .share()
+        }()
 
         self.navigationActionPolicy = navigationActionURL
             .map { _ in .allow }
@@ -88,7 +97,10 @@ final class EventListViewModel {
             .map { !$0.isEmpty && $1 }
 
         navigationActionURL
-            .map { $0.absoluteString.contains(Login.urlString) }
+            .map {
+                $0.absoluteString.contains(Login.urlString) ||
+                $0.absoluteString == Const.rootURLString
+            }
             .filter { $0 }
             .map { _ in }
             .bind(to: loggedOut)
