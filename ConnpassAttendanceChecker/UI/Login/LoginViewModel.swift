@@ -11,28 +11,28 @@ import WebKit
 import RxSwift
 import RxCocoa
 
+enum Login {
+    static let urlString = "https://connpass.com/login"
+}
+
 final class LoginViewModel {
     private enum Const {
         static let dashboardURLString = "https://connpass.com/dashboard"
-        static let loginURLString = "https://connpass.com/login"
     }
 
     let navigationActionPolicy: Observable<WKNavigationActionPolicy>
-    let close: Observable<Void>
     let loadRequest: Observable<URLRequest>
     let hideLoading: Observable<Bool>
 
     private let disposeBag = DisposeBag()
 
     init(navigationAction: Observable<WKNavigationAction>,
-         closeButtonTap: Observable<Void>,
-         isLoading: Observable<Bool>) {
+         isLoading: Observable<Bool>,
+         loggedIn: AnyObserver<Void>) {
         self.hideLoading = isLoading.map { !$0 }
         let _navigationActionPolicy = PublishRelay<WKNavigationActionPolicy>()
         self.navigationActionPolicy = _navigationActionPolicy.asObservable()
-        let _close = PublishRelay<Void>()
-        self.close = _close.asObservable()
-        self.loadRequest = Observable.just(Const.loginURLString)
+        self.loadRequest = Observable.just(Login.urlString)
             .map { URL(string: $0).map { URLRequest(url: $0) } }
             .unwrap()
             .share(replay: 1, scope: .whileConnected)
@@ -59,12 +59,10 @@ final class LoginViewModel {
             .bind(to: _navigationActionPolicy)
             .disposed(by: disposeBag)
 
-        let closeByURL = containsLoginURLString
+        containsLoginURLString
             .filter { $0 }
             .map { _ in }
-
-        Observable.merge(closeByURL, closeButtonTap)
-            .bind(to: _close)
+            .bind(to: loggedIn)
             .disposed(by: disposeBag)
     }
 }

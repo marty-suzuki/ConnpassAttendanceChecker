@@ -10,42 +10,94 @@ import Foundation
 import RxSwift
 import RxCocoa
 import CoreData
+import WebKit
+import Kanna
 
-final class EventListViewModel: NSObject {
-    let showRegister: Observable<Void>
+final class EventListViewModel {
+    private enum Const {
+        static let eventManageURLString = "https://connpass.com/editmanage/"
+    }
+
     let events: PropertyRelay<[Event]>
     let reloadData: Observable<Void>
     let selectedEvent: Observable<Event>
+    let loadRequest: Observable<URLRequest>
+    let navigationActionPolicy: Observable<WKNavigationActionPolicy>
+    let hideLoading: Observable<Bool>
+    let enableRefresh: Observable<Bool>
 
-    private let _events: BehaviorRelay<[Event]>
-    private let fetchedResultsController: NSFetchedResultsController<StoredEvent>
+    private let disposeBag = DisposeBag()
+    private let dataStore: EventDataStore
 
-    init(registerButtonTap: Observable<Void>,
+    init(viewDidAppear: Observable<Bool>,
+         refreshButtonTap: Observable<Void>,
          itemSelected: Observable<IndexPath>,
-         database: Database = .shared) {
-        let request: NSFetchRequest<StoredEvent> = StoredEvent.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
-        self.fetchedResultsController = database.makeFetchedResultsController(fetchRequest: request)
-        try? fetchedResultsController.performFetch()
-        let results = fetchedResultsController.fetchedObjects ?? []
-        self._events = BehaviorRelay(value: results.compactMap(Event.init))
-        self.events = PropertyRelay(_events)
+         navigationAction: Observable<WKNavigationAction>,
+         didFinishNavigation: Observable<Void>,
+         htmlDocument: Observable<HTMLDocument>,
+         isLoading: Observable<Bool>,
+         loggedOut: AnyObserver<Void>,
+         eventDataStore: EventDataStore? = nil) {
+        let navigationActionURL = navigationAction
+            .map { $0.request.url }
+            .unwrap()
+            .share()
 
-        self.showRegister = registerButtonTap
-        self.reloadData = events.skip(1).asObservable().map { _ in }
+        if let eventDataStore = eventDataStore {
+            self.dataStore = eventDataStore
+        } else {
+            let doc = navigationActionURL
+                .map { $0.absoluteString.contains(Const.eventManageURLString) }
+                .flatMapFirst { contains in
+                    contains ? htmlDocument : .empty()
+                }
+                .debug()
+
+            self.dataStore = EventDataStore(htmlDocument: doc)
+        }
+
+        self.events = dataStore.events
+
+        self.reloadData = events.skip(1).map { _ in }
+
         self.selectedEvent = itemSelected
-            .withLatestFrom(_events) { $1[$0.row] }
+            .withLatestFrom(events) { $1[$0.row] }
+            .share()
 
-        super.init()
+        let fetchEvents = Observable.combineLatest(viewDidAppear, dataStore.events)
+            .filter { $1.isEmpty }
+            .map { _ in }
 
-        fetchedResultsController.delegate = self
+        let startFetching = Observable.merge(fetchEvents, refreshButtonTap)
+            .share()
 
+        self.loadRequest = startFetching
+            .map { _ in Const.eventManageURLString }
+            .flatMap { URL(string: $0).map(Observable.just) ?? .empty() }
+            .map { URLRequest(url: $0) }
+            .share()
+
+        self.navigationActionPolicy = navigationActionURL
+            .map { _ in .allow }
+            .share()
+
+        let _hideLoading = PublishRelay<Bool>()
+        self.hideLoading = _hideLoading.asObservable()
+
+        self.enableRefresh = Observable.combineLatest(dataStore.events, _hideLoading)
+            .map { !$0.isEmpty && $1 }
+
+        navigationActionURL
+            .map { $0.absoluteString.contains(Login.urlString) }
+            .filter { $0 }
+            .map { _ in }
+            .bind(to: loggedOut)
+            .disposed(by: disposeBag)
+
+        Observable.merge(startFetching.map { false },
+                         dataStore.htmlUpdated.map { true })
+            .bind(to: _hideLoading)
+            .disposed(by: disposeBag)
     }
 }
 
-extension EventListViewModel: NSFetchedResultsControllerDelegate {
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        let events = (controller.fetchedObjects as? [StoredEvent]) ?? []
-        _events.accept(events.compactMap(Event.init))
-    }
-}

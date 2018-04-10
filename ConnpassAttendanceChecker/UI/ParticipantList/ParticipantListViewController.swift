@@ -146,9 +146,9 @@ final class ParticipantListViewController: UIViewController {
 
         viewModel.showLogin
             .bind(to: Binder(self) { me, processPool in
-                let vc = LoginViewController(processPool: processPool)
-                let nc = UINavigationController(rootViewController: vc)
-                me.present(nc, animated: true, completion: nil)
+                //let vc = LoginViewController(processPool: processPool)
+                //let nc = UINavigationController(rootViewController: vc)
+                //me.present(nc, animated: true, completion: nil)
             })
             .disposed(by: disposeBag)
 

@@ -7,10 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		37297F822077EDCE0019A4EF /* EventRegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37297F802077EDCE0019A4EF /* EventRegisterViewController.swift */; };
-		37297F832077EDCE0019A4EF /* EventRegisterViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 37297F812077EDCE0019A4EF /* EventRegisterViewController.xib */; };
 		37297F852077EFD90019A4EF /* EventListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37297F842077EFD90019A4EF /* EventListViewModel.swift */; };
-		37297F872077F2EF0019A4EF /* EventRegisterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37297F862077F2EF0019A4EF /* EventRegisterViewModel.swift */; };
 		37297F892077F4120019A4EF /* ObservableType.unwrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37297F882077F4120019A4EF /* ObservableType.unwrap.swift */; };
 		37297F8B2077FBE50019A4EF /* UIAlertController.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37297F8A2077FBE50019A4EF /* UIAlertController.extension.swift */; };
 		37297F8D207806AC0019A4EF /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37297F8C207806AC0019A4EF /* Database.swift */; };
@@ -44,6 +41,11 @@
 		37EDE3D1207A88BF008F7475 /* Enumerable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EDE3D0207A88BF008F7475 /* Enumerable.swift */; };
 		37EDE3D3207B9997008F7475 /* ParticipantDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EDE3D2207B9997008F7475 /* ParticipantDataStore.swift */; };
 		37F09A83207BD8DB00776079 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A82207BD8DB00776079 /* LoadingView.swift */; };
+		37F09A86207CFF7D00776079 /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A85207CFF7D00776079 /* RootViewController.swift */; };
+		37F09A88207CFF9500776079 /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A87207CFF9500776079 /* RootViewModel.swift */; };
+		37F09A8A207D08D100776079 /* UserDefaults.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A89207D08D100776079 /* UserDefaults.extension.swift */; };
+		37F09A8C207D178600776079 /* WebhookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A8B207D178600776079 /* WebhookView.swift */; };
+		37F09A8E207D311700776079 /* EventDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A8D207D311700776079 /* EventDataStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,10 +59,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		37297F802077EDCE0019A4EF /* EventRegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRegisterViewController.swift; sourceTree = "<group>"; };
-		37297F812077EDCE0019A4EF /* EventRegisterViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EventRegisterViewController.xib; sourceTree = "<group>"; };
 		37297F842077EFD90019A4EF /* EventListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventListViewModel.swift; sourceTree = "<group>"; };
-		37297F862077F2EF0019A4EF /* EventRegisterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRegisterViewModel.swift; sourceTree = "<group>"; };
 		37297F882077F4120019A4EF /* ObservableType.unwrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableType.unwrap.swift; sourceTree = "<group>"; };
 		37297F8A2077FBE50019A4EF /* UIAlertController.extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAlertController.extension.swift; sourceTree = "<group>"; };
 		37297F8C207806AC0019A4EF /* Database.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Database.swift; sourceTree = "<group>"; };
@@ -99,6 +98,11 @@
 		37EDE3D0207A88BF008F7475 /* Enumerable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enumerable.swift; sourceTree = "<group>"; };
 		37EDE3D2207B9997008F7475 /* ParticipantDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantDataStore.swift; sourceTree = "<group>"; };
 		37F09A82207BD8DB00776079 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		37F09A85207CFF7D00776079 /* RootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewController.swift; sourceTree = "<group>"; };
+		37F09A87207CFF9500776079 /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
+		37F09A89207D08D100776079 /* UserDefaults.extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaults.extension.swift; sourceTree = "<group>"; };
+		37F09A8B207D178600776079 /* WebhookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebhookView.swift; sourceTree = "<group>"; };
+		37F09A8D207D311700776079 /* EventDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDataStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,16 +128,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		37297F7F2077EDA40019A4EF /* EventRegister */ = {
-			isa = PBXGroup;
-			children = (
-				37297F802077EDCE0019A4EF /* EventRegisterViewController.swift */,
-				37297F812077EDCE0019A4EF /* EventRegisterViewController.xib */,
-				37297F862077F2EF0019A4EF /* EventRegisterViewModel.swift */,
-			);
-			path = EventRegister;
-			sourceTree = "<group>";
-		};
 		37297F98207812B30019A4EF /* ParticipantList */ = {
 			isa = PBXGroup;
 			children = (
@@ -171,10 +165,10 @@
 			isa = PBXGroup;
 			children = (
 				37F09A81207BD8BF00776079 /* Common */,
+				37F09A84207CFF6100776079 /* Root */,
 				37297F99207815670019A4EF /* Login */,
 				37297F98207812B30019A4EF /* ParticipantList */,
 				373FB7FE2077EBC7007A5CE2 /* EventList */,
-				37297F7F2077EDA40019A4EF /* EventRegister */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -197,6 +191,7 @@
 				37297F882077F4120019A4EF /* ObservableType.unwrap.swift */,
 				37297F8A2077FBE50019A4EF /* UIAlertController.extension.swift */,
 				378A2B4620789874001D9DDD /* WKWebView.extension.swift */,
+				37F09A89207D08D100776079 /* UserDefaults.extension.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -287,6 +282,7 @@
 			isa = PBXGroup;
 			children = (
 				37EDE3D2207B9997008F7475 /* ParticipantDataStore.swift */,
+				37F09A8D207D311700776079 /* EventDataStore.swift */,
 			);
 			path = DataStore;
 			sourceTree = "<group>";
@@ -304,8 +300,18 @@
 			isa = PBXGroup;
 			children = (
 				37F09A82207BD8DB00776079 /* LoadingView.swift */,
+				37F09A8B207D178600776079 /* WebhookView.swift */,
 			);
 			path = Common;
+			sourceTree = "<group>";
+		};
+		37F09A84207CFF6100776079 /* Root */ = {
+			isa = PBXGroup;
+			children = (
+				37F09A85207CFF7D00776079 /* RootViewController.swift */,
+				37F09A87207CFF9500776079 /* RootViewModel.swift */,
+			);
+			path = Root;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -392,7 +398,6 @@
 			files = (
 				37B640FF207674A00061D8AF /* LaunchScreen.storyboard in Resources */,
 				37B640FC207674A00061D8AF /* Assets.xcassets in Resources */,
-				37297F832077EDCE0019A4EF /* EventRegisterViewController.xib in Resources */,
 				372DC0332078CDBC006E7208 /* ParticipantCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -433,28 +438,31 @@
 				37297F9B2078169A0019A4EF /* LoginViewController.swift in Sources */,
 				373FB7F12077E876007A5CE2 /* StoredParticipant+CoreDataProperties.swift in Sources */,
 				37297F9120780D7A0019A4EF /* PropertyRelay.swift in Sources */,
-				37297F872077F2EF0019A4EF /* EventRegisterViewModel.swift in Sources */,
 				37EDE3D1207A88BF008F7475 /* Enumerable.swift in Sources */,
 				373FB7F52077E8B3007A5CE2 /* Event.swift in Sources */,
 				373FB7F02077E876007A5CE2 /* StoredParticipant+CoreDataClass.swift in Sources */,
 				373FB7F22077E876007A5CE2 /* StoredEvent+CoreDataClass.swift in Sources */,
 				37F09A83207BD8DB00776079 /* LoadingView.swift in Sources */,
 				37297F8B2077FBE50019A4EF /* UIAlertController.extension.swift in Sources */,
+				37F09A86207CFF7D00776079 /* RootViewController.swift in Sources */,
 				37EDE3D3207B9997008F7475 /* ParticipantDataStore.swift in Sources */,
 				37297F8D207806AC0019A4EF /* Database.swift in Sources */,
 				37297F97207812A20019A4EF /* ParticipantListViewController.swift in Sources */,
-				37297F822077EDCE0019A4EF /* EventRegisterViewController.swift in Sources */,
 				37297F852077EFD90019A4EF /* EventListViewModel.swift in Sources */,
 				372DC0322078CDBC006E7208 /* ParticipantCell.swift in Sources */,
 				37B640FA2076749F0061D8AF /* ConnpassAttendanceChecker.xcdatamodeld in Sources */,
 				37297F892077F4120019A4EF /* ObservableType.unwrap.swift in Sources */,
 				373FB7F72077E94A007A5CE2 /* EventListViewController.swift in Sources */,
 				373FB7FD2077EB29007A5CE2 /* UIViewController.extension.swift in Sources */,
+				37F09A88207CFF9500776079 /* RootViewModel.swift in Sources */,
 				373FB7F32077E876007A5CE2 /* StoredEvent+CoreDataProperties.swift in Sources */,
 				37297F9D207879080019A4EF /* ParticipantListViewModel.swift in Sources */,
+				37F09A8E207D311700776079 /* EventDataStore.swift in Sources */,
 				37B640F22076749F0061D8AF /* AppDelegate.swift in Sources */,
 				37EDE3CE2079160F008F7475 /* LoginViewModel.swift in Sources */,
 				378A2B4720789874001D9DDD /* WKWebView.extension.swift in Sources */,
+				37F09A8C207D178600776079 /* WebhookView.swift in Sources */,
+				37F09A8A207D08D100776079 /* UserDefaults.extension.swift in Sources */,
 				373FB7FB2077EA8E007A5CE2 /* UIView.extension.swift in Sources */,
 				373FB7EB2077E251007A5CE2 /* Participant.swift in Sources */,
 			);
