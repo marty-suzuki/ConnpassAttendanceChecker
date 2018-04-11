@@ -55,7 +55,20 @@ extension AlertActionStyle {
     }
 }
 
+struct AlertElement {
+    let title: String?
+    let message: String?
+    let actions: [AlertActionStyle]
+}
+
 extension UIViewControllerExtension where Base == UIAlertController {
+    static func showAlert(element: AlertElement, to viewController: UIViewController) -> Observable<AlertActionStyle> {
+        let alert = UIAlertController(title: element.title,
+                                      message: element.message,
+                                      preferredStyle: .alert)
+        return alert.ex.show(with: element.actions, to: viewController)
+    }
+
     func show(with actions: [AlertActionStyle], to viewController: UIViewController) -> Observable<AlertActionStyle> {
         let observables = actions.map(add)
         viewController.present(base, animated: true, completion: nil)

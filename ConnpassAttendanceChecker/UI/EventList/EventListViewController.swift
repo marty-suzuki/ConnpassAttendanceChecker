@@ -24,9 +24,11 @@ final class EventListViewController: UIViewController {
                                                     navigationAction: self.hookView.navigationAction,
                                                     didFinishNavigation: self.hookView.didFinishNavigation,
                                                     htmlDocument: self.hookView.htmlDocument,
+                                                    alertHandler: self._alertHandler.asObservable(),
                                                     isLoading: self.hookView.isLoading,
                                                     loggedOut: self.loggedOut)
     private let disposeBag = DisposeBag()
+    private let _alertHandler = PublishRelay<(AlertActionStyle, EventListViewModel.ActionType)>()
     private let cellIdentifier = "Cell"
 
     private let processPool: WKProcessPool
@@ -93,6 +95,16 @@ final class EventListViewController: UIViewController {
 
         viewModel.enableRefresh
             .bind(to: refreshButton.rx.isEnabled)
+            .disposed(by: disposeBag)
+
+        viewModel.showAlert
+            .flatMap { [weak self] arg in
+                (self.map {
+                    UIAlertController.ex.showAlert(element: arg.0, to: $0)
+                } ?? .empty())
+                .map { ($0, arg.1) }
+            }
+            .bind(to: _alertHandler)
             .disposed(by: disposeBag)
     }
 

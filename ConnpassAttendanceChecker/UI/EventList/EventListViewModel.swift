@@ -20,6 +20,11 @@ final class EventListViewModel {
         static let rootURLString = "https://connpass.com/"
     }
 
+    enum ActionType {
+        case logout
+        case refresh
+    }
+
     let events: PropertyRelay<[Event]>
     let reloadData: Observable<Void>
     let selectedEvent: Observable<Event>
@@ -27,6 +32,7 @@ final class EventListViewModel {
     let navigationActionPolicy: Observable<WKNavigationActionPolicy>
     let hideLoading: Observable<Bool>
     let enableRefresh: Observable<Bool>
+    let showAlert: Observable<(AlertElement, ActionType)>
 
     private let disposeBag = DisposeBag()
     private let dataStore: EventDataStore
@@ -38,6 +44,7 @@ final class EventListViewModel {
          navigationAction: Observable<WKNavigationAction>,
          didFinishNavigation: Observable<Void>,
          htmlDocument: Observable<HTMLDocument>,
+         alertHandler: Observable<(AlertActionStyle, ActionType)>,
          isLoading: Observable<Bool>,
          loggedOut: AnyObserver<Void>,
          eventDataStore: EventDataStore? = nil) {
@@ -70,15 +77,28 @@ final class EventListViewModel {
             .filter { $1.isEmpty }
             .map { _ in }
 
-        let startFetching = Observable.merge(fetchEvents, refreshButtonTap)
+        let refresh = alertHandler
+            .flatMap { style, action -> Observable<Void> in
+                guard case .default = style, action == .refresh else {
+                    return .empty()
+                }
+                return .just(())
+            }
+
+        let startFetching = Observable.merge(fetchEvents, refresh)
             .share()
 
         self.loadRequest = {
             let eventManageURLString = startFetching
                 .map { _ in Const.eventManageURLString }
 
-            let logoutURLString = logoutButtonTap
-                .map { _ in Const.logoutURLString }
+            let logoutURLString = alertHandler
+                .flatMap { style, action -> Observable<String> in
+                    guard case .destructive = style, action == .logout else {
+                        return .empty()
+                    }
+                    return .just(Const.logoutURLString)
+                }
 
             return Observable.merge(eventManageURLString, logoutURLString)
                 .flatMap { URL(string: $0).map(Observable.just) ?? .empty() }
@@ -95,6 +115,24 @@ final class EventListViewModel {
 
         self.enableRefresh = Observable.combineLatest(dataStore.events, _hideLoading)
             .map { !$0.isEmpty && $1 }
+
+        self.showAlert = {
+            let logout = logoutButtonTap
+                .map { _ -> (AlertElement, ActionType) in
+                    (AlertElement(title: "Logout",
+                                  message: "Do you want logout?",
+                                  actions: [.destructive("Logout"), .cancel("Cancel")]),
+                     .logout)
+                }
+            let refresh = refreshButtonTap
+                .map { _ -> (AlertElement, ActionType) in
+                    (AlertElement(title: "Refresh",
+                                  message: "Do you want refresh event list?",
+                                  actions: [.default("Refresh"), .cancel("Cancel")]),
+                     .refresh)
+                }
+            return Observable.merge(logout, refresh)
+        }()
 
         navigationActionURL
             .map {

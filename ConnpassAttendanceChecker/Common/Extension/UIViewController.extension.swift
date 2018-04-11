@@ -15,10 +15,15 @@ struct UIViewControllerExtension<Base: UIViewController> {
 
 protocol UIViewControllerCompatible {
     associatedtype Base: UIViewController
+    static var ex: UIViewControllerExtension<Base>.Type { get }
     var ex: UIViewControllerExtension<Base> { get }
 }
 
 extension UIViewControllerCompatible where Self: UIViewController {
+    static var ex: UIViewControllerExtension<Self>.Type {
+        return UIViewControllerExtension<Self>.self
+    }
+
     var ex: UIViewControllerExtension<Self> {
         return .init(base: self)
     }
