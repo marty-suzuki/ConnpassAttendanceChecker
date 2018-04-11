@@ -46,6 +46,8 @@
 		37F09A8A207D08D100776079 /* UserDefaults.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A89207D08D100776079 /* UserDefaults.extension.swift */; };
 		37F09A8C207D178600776079 /* WebhookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A8B207D178600776079 /* WebhookView.swift */; };
 		37F09A8E207D311700776079 /* EventDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A8D207D311700776079 /* EventDataStore.swift */; };
+		37F09A91207E859700776079 /* ParticipantListDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A90207E859700776079 /* ParticipantListDetailViewController.swift */; };
+		37F09A93207E88A900776079 /* ParticipantListDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A92207E88A900776079 /* ParticipantListDetailViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -103,6 +105,8 @@
 		37F09A89207D08D100776079 /* UserDefaults.extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaults.extension.swift; sourceTree = "<group>"; };
 		37F09A8B207D178600776079 /* WebhookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebhookView.swift; sourceTree = "<group>"; };
 		37F09A8D207D311700776079 /* EventDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDataStore.swift; sourceTree = "<group>"; };
+		37F09A90207E859700776079 /* ParticipantListDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantListDetailViewController.swift; sourceTree = "<group>"; };
+		37F09A92207E88A900776079 /* ParticipantListDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantListDetailViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,9 +170,10 @@
 			children = (
 				37F09A81207BD8BF00776079 /* Common */,
 				37F09A84207CFF6100776079 /* Root */,
+				373FB7FE2077EBC7007A5CE2 /* EventList */,
 				37297F99207815670019A4EF /* Login */,
 				37297F98207812B30019A4EF /* ParticipantList */,
-				373FB7FE2077EBC7007A5CE2 /* EventList */,
+				37F09A8F207E856200776079 /* ParticipantListDetail */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -314,6 +319,15 @@
 			path = Root;
 			sourceTree = "<group>";
 		};
+		37F09A8F207E856200776079 /* ParticipantListDetail */ = {
+			isa = PBXGroup;
+			children = (
+				37F09A90207E859700776079 /* ParticipantListDetailViewController.swift */,
+				37F09A92207E88A900776079 /* ParticipantListDetailViewModel.swift */,
+			);
+			path = ParticipantListDetail;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -444,6 +458,7 @@
 				373FB7F22077E876007A5CE2 /* StoredEvent+CoreDataClass.swift in Sources */,
 				37F09A83207BD8DB00776079 /* LoadingView.swift in Sources */,
 				37297F8B2077FBE50019A4EF /* UIAlertController.extension.swift in Sources */,
+				37F09A93207E88A900776079 /* ParticipantListDetailViewModel.swift in Sources */,
 				37F09A86207CFF7D00776079 /* RootViewController.swift in Sources */,
 				37EDE3D3207B9997008F7475 /* ParticipantDataStore.swift in Sources */,
 				37297F8D207806AC0019A4EF /* Database.swift in Sources */,
@@ -452,6 +467,7 @@
 				372DC0322078CDBC006E7208 /* ParticipantCell.swift in Sources */,
 				37B640FA2076749F0061D8AF /* ConnpassAttendanceChecker.xcdatamodeld in Sources */,
 				37297F892077F4120019A4EF /* ObservableType.unwrap.swift in Sources */,
+				37F09A91207E859700776079 /* ParticipantListDetailViewController.swift in Sources */,
 				373FB7F72077E94A007A5CE2 /* EventListViewController.swift in Sources */,
 				373FB7FD2077EB29007A5CE2 /* UIViewController.extension.swift in Sources */,
 				37F09A88207CFF9500776079 /* RootViewModel.swift in Sources */,

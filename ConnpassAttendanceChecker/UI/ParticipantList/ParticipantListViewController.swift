@@ -14,7 +14,7 @@ import Kanna
 
 final class ParticipantListViewController: UIViewController {
     private let tableview = UITableView(frame: .zero)
-    private let refreshButton = UIBarButtonItem(barButtonSystemItem: .refresh, target: nil, action: nil)
+    private let detailButton = UIBarButtonItem(barButtonSystemItem: .edit, target: nil, action: nil)
     private let selectorButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
     private let pickerView = UIPickerView(frame: .zero)
     private let loadingView = LoadingView(frame: .zero)
@@ -64,7 +64,7 @@ final class ParticipantListViewController: UIViewController {
                                                           cancelButtonTap: self.searchBar.rx.cancelButtonClicked.asObservable(),
                                                           searchButtonTap: self.searchBar.rx.searchButtonClicked.asObservable(),
                                                           selectorButtonTap: self.selectorButton.rx.tap.asObservable(),
-                                                          refreshButtonTap: self.refreshButton.rx.tap.asObservable(),
+                                                          detailButtonTap: self.detailButton.rx.tap.asObservable(),
                                                           checkedActionStyle: self._checkedActionStyle.asObservable(),
                                                           pickerItemSelected: self.pickerView.rx.itemSelected.asObservable(),
                                                           tableViewItemSelected:  self.tableview.rx.itemSelected.asObservable(),
@@ -89,7 +89,7 @@ final class ParticipantListViewController: UIViewController {
         super.viewDidLoad()
 
         navigationItem.title = "Participant List"
-        navigationItem.rightBarButtonItem = refreshButton
+        navigationItem.rightBarButtonItem = detailButton
 
         tableview.dataSource = self
         let nib = UINib(nibName: ParticipantCell.identifier, bundle: nil)
@@ -203,13 +203,11 @@ final class ParticipantListViewController: UIViewController {
             .bind(to: loadingView.rx.isHidden)
             .disposed(by: disposeBag)
 
-        viewModel.enableRefresh
-            .bind(to: refreshButton.rx.isEnabled)
-            .disposed(by: disposeBag)
-
-        viewModel.close
+        viewModel.showDetail
             .bind(to: Binder(self) { me, _ in
-                me.navigationController?.popViewController(animated: true)
+                let vc = ParticipantListDetailViewController(viewModel: me.viewModel)
+                let nc = UINavigationController(rootViewController: vc)
+                me.present(nc, animated: true, completion: nil)
             })
             .disposed(by: disposeBag)
     }

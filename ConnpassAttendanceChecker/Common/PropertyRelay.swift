@@ -22,6 +22,10 @@ final class PropertyRelay<Element>: ObservableType {
         self.relay = relay
     }
 
+    init(_ value: E) {
+        self.relay = BehaviorRelay(value: value)
+    }
+
     func subscribe<O>(_ observer: O) -> Disposable where O : ObserverType, E == O.E {
         return relay.subscribe(observer)
     }

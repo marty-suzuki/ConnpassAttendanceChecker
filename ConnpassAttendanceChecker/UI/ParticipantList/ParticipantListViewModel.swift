@@ -46,7 +46,10 @@ final class ParticipantListViewModel {
     let deselectIndexPath: Observable<IndexPath>
     let hideLoading: Observable<Bool>
     let enableRefresh: Observable<Bool>
-    let close: Observable<Void>
+    let showDetail: Observable<Void>
+
+    let refresh: AnyObserver<Void>
+    private let _refresh = PublishSubject<Void>()
 
     private let _searchTypes = BehaviorRelay<[SearchType]>(value: SearchType.elements)
     private let _displayParticipants = BehaviorRelay<[Participant]>(value: [])
@@ -63,7 +66,7 @@ final class ParticipantListViewModel {
          cancelButtonTap: Observable<Void>,
          searchButtonTap: Observable<Void>,
          selectorButtonTap: Observable<Void>,
-         refreshButtonTap: Observable<Void>,
+         detailButtonTap: Observable<Void>,
          checkedActionStyle: Observable<AlertActionStyle>,
          pickerItemSelected: Observable<(row: Int, component: Int)>,
          tableViewItemSelected: Observable<IndexPath>,
@@ -71,6 +74,9 @@ final class ParticipantListViewModel {
          webhookType: Webhook.Type,
          dataStoreType: DataStore.Type,
          database: Database = .shared) {
+        self.showDetail = detailButtonTap
+        self.refresh = _refresh.asObserver()
+
         let _loadRequet = PublishRelay<URLRequest>()
         let _navigationActionPolicy = PublishRelay<WKNavigationActionPolicy>()
 
@@ -86,9 +92,6 @@ final class ParticipantListViewModel {
 
         let _hideLoading = PublishRelay<Bool>()
         self.hideLoading = _hideLoading.asObservable()
-
-        let _close = PublishRelay<Void>()
-        self.close = _close.asObservable()
 
         let _showCheckedAlert = PublishRelay<CheckedAlertElement>()
         self.showCheckedAlert = _showCheckedAlert.asObservable()
@@ -243,7 +246,7 @@ final class ParticipantListViewModel {
                 .filter { $1.isEmpty }
                 .map { _ in }
 
-            let startFetching = Observable.merge(fetchParticipants, refreshButtonTap)
+            let startFetching = Observable.merge(fetchParticipants, _refresh)
                 .share()
 
             startFetching
