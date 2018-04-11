@@ -52,10 +52,11 @@ final class ParticipantListViewModel {
     private let _displayParticipants = BehaviorRelay<[Participant]>(value: [])
     private let _searchType = BehaviorRelay<SearchType>(value: .number)
     private let disposeBag = DisposeBag()
-    private let dataStore: ParticipantDataStore
-    private let webhook: WebhookView
+    private let dataStore: ParticipantDataStoreType
+    private let webhook: WebhookViewType
 
-    init(event: Event,
+    init<Webhook: WebhookViewType, DataStore: ParticipantDataStoreType>
+        (event: Event,
          processPool: WKProcessPool,
          viewDidAppear: Observable<Bool>,
          searchText: Observable<String?>,
@@ -67,7 +68,9 @@ final class ParticipantListViewModel {
          pickerItemSelected: Observable<(row: Int, component: Int)>,
          tableViewItemSelected: Observable<IndexPath>,
          loggedOut: AnyObserver<Void>,
-         participantDataStore: ParticipantDataStore? = nil) {
+         webhookType: Webhook.Type,
+         dataStoreType: DataStore.Type,
+         database: Database = .shared) {
         let _loadRequet = PublishRelay<URLRequest>()
         let _navigationActionPolicy = PublishRelay<WKNavigationActionPolicy>()
 
@@ -77,9 +80,9 @@ final class ParticipantListViewModel {
             .bind(to: _loadRequet)
             .disposed(by: disposeBag)
 
-        self.webhook = WebhookView(processPool: processPool,
-                                   loadRequet: _loadRequet.asObservable(),
-                                   navigationActionPolicy: _navigationActionPolicy.asObservable())
+        self.webhook = Webhook(processPool: processPool,
+                               loadRequet: _loadRequet.asObservable(),
+                               navigationActionPolicy: _navigationActionPolicy.asObservable())
 
         let _hideLoading = PublishRelay<Bool>()
         self.hideLoading = _hideLoading.asObservable()
@@ -99,9 +102,7 @@ final class ParticipantListViewModel {
             .map { $0.request.url }
             .share()
 
-        if let participantDataStore = participantDataStore {
-            self.dataStore = participantDataStore
-        } else {
+        do {
             let updateChehckedWithIndex = checkedActionStyle
                 .filter { $0.isDefault }
                 .withLatestFrom(_showCheckedAlert)
@@ -118,7 +119,7 @@ final class ParticipantListViewModel {
             let participant = tableViewItemSelected
                 .withLatestFrom(_displayParticipants) { $1[$0.row] }
 
-            let doc = navigationActionURL
+            let htmlDocument = navigationActionURL
                 .unwrap()
                 .withLatestFrom(_participantsURL) { ($0, $1) }
                 .map { $0.absoluteString.contains($1.absoluteString) }
@@ -126,12 +127,13 @@ final class ParticipantListViewModel {
                     contains ? webhook.htmlDocument : .empty()
                 }
 
-            self.dataStore = ParticipantDataStore(event: event,
-                                                  htmlDocument: doc,
-                                                  updateChehckedWithIndex: updateChehckedWithIndex,
-                                                  filterWithNunmber: number,
-                                                  filterWithName: name,
-                                                  indexOfParticipant: participant)
+            self.dataStore = DataStore(event: event,
+                                       htmlDocument: htmlDocument,
+                                       updateChehckedWithIndex: updateChehckedWithIndex,
+                                       filterWithNunmber: number,
+                                       filterWithName: name,
+                                       indexOfParticipant: participant,
+                                       database: database)
         }
 
         self.enableRefresh = Observable.combineLatest(dataStore.participants, _hideLoading)

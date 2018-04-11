@@ -33,40 +33,40 @@ final class EventListViewModel {
     let showAlert: Observable<(AlertElement, ActionType)>
 
     private let disposeBag = DisposeBag()
-    private let dataStore: EventDataStore
-    private let webhook: WebhookView
+    private let dataStore: EventDataStoreType
+    private let webhook: WebhookViewType
 
-    init(processPool: WKProcessPool,
+    init<Webhook: WebhookViewType, DataStore: EventDataStoreType>
+        (processPool: WKProcessPool,
          viewDidAppear: Observable<Bool>,
          refreshButtonTap: Observable<Void>,
          logoutButtonTap: Observable<Void>,
          itemSelected: Observable<IndexPath>,
          alertHandler: Observable<(AlertActionStyle, ActionType)>,
          loggedOut: AnyObserver<Void>,
-         eventDataStore: EventDataStore? = nil) {
+         webhookType: Webhook.Type,
+         dataStoreType: DataStore.Type,
+         database: Database = .shared) {
         let _loadRequet = PublishRelay<URLRequest>()
         let _navigationActionPolicy = PublishRelay<WKNavigationActionPolicy>()
 
-        self.webhook = WebhookView(processPool: processPool,
-                                   loadRequet: _loadRequet.asObservable(),
-                                   navigationActionPolicy: _navigationActionPolicy.asObservable())
+        self.webhook = Webhook(processPool: processPool,
+                               loadRequet: _loadRequet.asObservable(),
+                               navigationActionPolicy: _navigationActionPolicy.asObservable())
 
         let navigationActionURL = webhook.navigationAction
             .map { $0.request.url }
             .unwrap()
             .share()
 
-        if let eventDataStore = eventDataStore {
-            self.dataStore = eventDataStore
-        } else {
-            let doc = navigationActionURL
-                .map { $0.absoluteString.contains(Const.eventManageURLString) }
-                .flatMapFirst { [webhook] contains in
-                    contains ? webhook.htmlDocument : .empty()
-                }
+        let htmlDocument = navigationActionURL
+            .map { $0.absoluteString.contains(Const.eventManageURLString) }
+            .flatMapFirst { [webhook] contains in
+                contains ? webhook.htmlDocument : .empty()
+            }
 
-            self.dataStore = EventDataStore(htmlDocument: doc)
-        }
+        self.dataStore = DataStore(htmlDocument: htmlDocument,
+                                   database: database)
 
         self.events = dataStore.events
         self.reloadData = events.skip(1).map { _ in }

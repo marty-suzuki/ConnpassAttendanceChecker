@@ -12,7 +12,14 @@ import RxSwift
 import RxCocoa
 import Kanna
 
-final class EventDataStore: NSObject {
+protocol EventDataStoreType: class {
+    var htmlUpdated: Observable<Void> { get }
+    var events: PropertyRelay<[Event]> { get }
+    init(htmlDocument: Observable<HTMLDocument>,
+         database: Database)
+}
+
+final class EventDataStore: NSObject, EventDataStoreType {
     let htmlUpdated: Observable<Void>
 
     let events: PropertyRelay<[Event]>

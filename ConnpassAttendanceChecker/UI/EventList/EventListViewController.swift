@@ -23,7 +23,9 @@ final class EventListViewController: UIViewController {
                                                     logoutButtonTap: self.logoutButton.rx.tap.asObservable(),
                                                     itemSelected: self.tableview.rx.itemSelected.asObservable(),
                                                     alertHandler: self._alertHandler.asObservable(),
-                                                    loggedOut: self.loggedOut)
+                                                    loggedOut: self.loggedOut,
+                                                    webhookType: WebhookView.self,
+                                                    dataStoreType: EventDataStore.self)
     private let disposeBag = DisposeBag()
     private let _alertHandler = PublishRelay<(AlertActionStyle, EventListViewModel.ActionType)>()
     private let cellIdentifier = "Cell"

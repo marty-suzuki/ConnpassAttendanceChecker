@@ -68,7 +68,9 @@ final class ParticipantListViewController: UIViewController {
                                                           checkedActionStyle: self._checkedActionStyle.asObservable(),
                                                           pickerItemSelected: self.pickerView.rx.itemSelected.asObservable(),
                                                           tableViewItemSelected:  self.tableview.rx.itemSelected.asObservable(),
-                                                          loggedOut: self.loggedOut)
+                                                          loggedOut: self.loggedOut,
+                                                          webhookType: WebhookView.self,
+                                                          dataStoreType: ParticipantDataStore.self)
 
     init(event: Event,
          processPool: WKProcessPool,

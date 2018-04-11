@@ -12,7 +12,22 @@ import RxSwift
 import RxCocoa
 import Kanna
 
-final class ParticipantDataStore: NSObject {
+protocol ParticipantDataStoreType: class {
+    var updatedIndex: Observable<Int> { get }
+    var htmlUpdated: Observable<Void> { get }
+    var filteredParticipants: Observable<[Participant]> { get }
+    var indexAndParticipant: Observable<(Int, Participant)> { get }
+    var participants: PropertyRelay<[Participant]> { get }
+    init(event: Event,
+         htmlDocument: Observable<HTMLDocument>,
+         updateChehckedWithIndex: Observable<(Bool, Int)>,
+         filterWithNunmber: Observable<Int>,
+         filterWithName: Observable<String>,
+         indexOfParticipant: Observable<Participant>,
+         database: Database)
+}
+
+final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
     let updatedIndex: Observable<Int>
     let htmlUpdated: Observable<Void>
     let filteredParticipants: Observable<[Participant]>

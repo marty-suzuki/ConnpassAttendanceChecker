@@ -12,7 +12,18 @@ import RxSwift
 import RxCocoa
 import Kanna
 
-final class WebhookView: NSObject {
+protocol WebhookViewType: class {
+    var navigationAction: Observable<WKNavigationAction> { get }
+    var didFinishNavigation: Observable<Void> { get }
+    var htmlDocument: Observable<HTMLDocument> { get }
+    var isLoading: Observable<Bool> { get }
+
+    init(processPool: WKProcessPool,
+         loadRequet: Observable<URLRequest>,
+         navigationActionPolicy: Observable<WKNavigationActionPolicy>)
+}
+
+final class WebhookView: NSObject, WebhookViewType {
     var view: UIView {
         return webview
     }
