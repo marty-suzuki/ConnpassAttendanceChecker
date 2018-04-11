@@ -17,15 +17,12 @@ final class EventListViewController: UIViewController {
     private let logoutButton = UIBarButtonItem(title: "Logout", style: .plain, target: nil, action: nil)
     private let loadingView = LoadingView(frame: .zero)
 
-    private lazy var viewModel = EventListViewModel(viewDidAppear: self.ex.viewDidAppear,
+    private lazy var viewModel = EventListViewModel(processPool: self.processPool,
+                                                    viewDidAppear: self.ex.viewDidAppear,
                                                     refreshButtonTap: self.refreshButton.rx.tap.asObservable(),
                                                     logoutButtonTap: self.logoutButton.rx.tap.asObservable(),
                                                     itemSelected: self.tableview.rx.itemSelected.asObservable(),
-                                                    navigationAction: self.hookView.navigationAction,
-                                                    didFinishNavigation: self.hookView.didFinishNavigation,
-                                                    htmlDocument: self.hookView.htmlDocument,
                                                     alertHandler: self._alertHandler.asObservable(),
-                                                    isLoading: self.hookView.isLoading,
                                                     loggedOut: self.loggedOut)
     private let disposeBag = DisposeBag()
     private let _alertHandler = PublishRelay<(AlertActionStyle, EventListViewModel.ActionType)>()
@@ -33,12 +30,6 @@ final class EventListViewController: UIViewController {
 
     private let processPool: WKProcessPool
     private let loggedOut: AnyObserver<Void>
-
-    private let _loadRequet = PublishSubject<URLRequest>()
-    private let _navigationActionPolicy = PublishSubject<WKNavigationActionPolicy>()
-    private lazy var hookView = WebhookView(processPool: self.processPool,
-                                            loadRequet: self._loadRequet,
-                                            navigationActionPolicy: self._navigationActionPolicy)
 
     init(processPool: WKProcessPool,
          loggedOut: AnyObserver<Void>) {
@@ -79,14 +70,6 @@ final class EventListViewController: UIViewController {
                                                        loggedOut: me.loggedOut)
                 me.navigationController?.pushViewController(vc, animated: true)
             })
-            .disposed(by: disposeBag)
-
-        viewModel.loadRequest
-            .bind(to: _loadRequet)
-            .disposed(by: disposeBag)
-
-        viewModel.navigationActionPolicy
-            .bind(to: _navigationActionPolicy)
             .disposed(by: disposeBag)
 
         viewModel.hideLoading

@@ -18,11 +18,6 @@ final class ParticipantListViewController: UIViewController {
     private let selectorButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
     private let pickerView = UIPickerView(frame: .zero)
     private let loadingView = LoadingView(frame: .zero)
-    private lazy var webview: WKWebView = {
-        let config = WKWebViewConfiguration()
-        config.processPool = self.processPool
-        return WKWebView(frame: .zero, configuration: config)
-    }()
     private lazy var searchBar: UISearchBar = {
         let searchBar = UISearchBar(frame: .zero)
         searchBar.showsCancelButton = true
@@ -60,17 +55,11 @@ final class ParticipantListViewController: UIViewController {
     private let loggedOut: AnyObserver<Void>
     private let pickerToolbarHeight: CGFloat = 100
     private let disposeBag = DisposeBag()
-    private let _navigationAction = PublishRelay<WKNavigationAction>()
-    private let _didFinishNavigation = PublishRelay<Void>()
-    private var navigationActionPolicyDisposeBag = DisposeBag()
-    private let _htmlDocument = PublishRelay<HTMLDocument>()
-    private let _isLoading = PublishRelay<Bool>()
+
     private let _checkedActionStyle = PublishRelay<AlertActionStyle>()
     private lazy var viewModel = ParticipantListViewModel(event: self.event,
+                                                          processPool: self.processPool,
                                                           viewDidAppear: self.ex.viewDidAppear,
-                                                          navigationAction: self._navigationAction.asObservable(),
-                                                          htmlDocument: self._htmlDocument.asObservable(),
-                                                          loading: self._isLoading.asObservable(),
                                                           searchText: self.searchBar.rx.text.asObservable(),
                                                           cancelButtonTap: self.searchBar.rx.cancelButtonClicked.asObservable(),
                                                           searchButtonTap: self.searchBar.rx.searchButtonClicked.asObservable(),
@@ -79,7 +68,6 @@ final class ParticipantListViewController: UIViewController {
                                                           checkedActionStyle: self._checkedActionStyle.asObservable(),
                                                           pickerItemSelected: self.pickerView.rx.itemSelected.asObservable(),
                                                           tableViewItemSelected:  self.tableview.rx.itemSelected.asObservable(),
-                                                          didFinishNavigation: self._didFinishNavigation.asObservable(),
                                                           loggedOut: self.loggedOut)
 
     init(event: Event,
@@ -138,26 +126,6 @@ final class ParticipantListViewController: UIViewController {
 
         loadingView.isHidden = true
         view.ex.addEdges(to: loadingView)
-
-        webview.navigationDelegate = self
-
-        webview.rx.loading
-            .bind(to: _isLoading)
-            .disposed(by: disposeBag)
-
-        viewModel.participantsURL
-            .bind(to: Binder(webview) { webview, url in
-                webview.load(URLRequest(url: url))
-            })
-            .disposed(by: disposeBag)
-
-        viewModel.getHTMLDocument
-            .observeOn(MainScheduler.instance)
-            .flatMapLatest { [weak webview] _ in
-                webview.map { $0.rx.html() } ?? .empty()
-            }
-            .bind(to: _htmlDocument)
-            .disposed(by: disposeBag)
 
         viewModel.reloadData
             .bind(to: Binder(tableview) { tableview, _ in
@@ -264,21 +232,5 @@ extension ParticipantListViewController: UITableViewDataSource {
             cell.configure(with: viewModel.participants.value[indexPath.row])
         }
         return cell
-    }
-}
-
-extension ParticipantListViewController: WKNavigationDelegate {
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        navigationActionPolicyDisposeBag = DisposeBag()
-
-        viewModel.navigationActionPolicy
-            .bind(onNext: decisionHandler)
-            .disposed(by: navigationActionPolicyDisposeBag)
-
-        _navigationAction.accept(navigationAction)
-    }
-
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        _didFinishNavigation.accept(())
     }
 }

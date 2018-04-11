@@ -28,27 +28,30 @@ final class EventListViewModel {
     let events: PropertyRelay<[Event]>
     let reloadData: Observable<Void>
     let selectedEvent: Observable<Event>
-    let loadRequest: Observable<URLRequest>
-    let navigationActionPolicy: Observable<WKNavigationActionPolicy>
     let hideLoading: Observable<Bool>
     let enableRefresh: Observable<Bool>
     let showAlert: Observable<(AlertElement, ActionType)>
 
     private let disposeBag = DisposeBag()
     private let dataStore: EventDataStore
+    private let webhook: WebhookView
 
-    init(viewDidAppear: Observable<Bool>,
+    init(processPool: WKProcessPool,
+         viewDidAppear: Observable<Bool>,
          refreshButtonTap: Observable<Void>,
          logoutButtonTap: Observable<Void>,
          itemSelected: Observable<IndexPath>,
-         navigationAction: Observable<WKNavigationAction>,
-         didFinishNavigation: Observable<Void>,
-         htmlDocument: Observable<HTMLDocument>,
          alertHandler: Observable<(AlertActionStyle, ActionType)>,
-         isLoading: Observable<Bool>,
          loggedOut: AnyObserver<Void>,
          eventDataStore: EventDataStore? = nil) {
-        let navigationActionURL = navigationAction
+        let _loadRequet = PublishRelay<URLRequest>()
+        let _navigationActionPolicy = PublishRelay<WKNavigationActionPolicy>()
+
+        self.webhook = WebhookView(processPool: processPool,
+                                   loadRequet: _loadRequet.asObservable(),
+                                   navigationActionPolicy: _navigationActionPolicy.asObservable())
+
+        let navigationActionURL = webhook.navigationAction
             .map { $0.request.url }
             .unwrap()
             .share()
@@ -58,15 +61,14 @@ final class EventListViewModel {
         } else {
             let doc = navigationActionURL
                 .map { $0.absoluteString.contains(Const.eventManageURLString) }
-                .flatMapFirst { contains in
-                    contains ? htmlDocument : .empty()
+                .flatMapFirst { [webhook] contains in
+                    contains ? webhook.htmlDocument : .empty()
                 }
 
             self.dataStore = EventDataStore(htmlDocument: doc)
         }
 
         self.events = dataStore.events
-
         self.reloadData = events.skip(1).map { _ in }
 
         self.selectedEvent = itemSelected
@@ -88,7 +90,7 @@ final class EventListViewModel {
         let startFetching = Observable.merge(fetchEvents, refresh)
             .share()
 
-        self.loadRequest = {
+        do {
             let eventManageURLString = startFetching
                 .map { _ in Const.eventManageURLString }
 
@@ -100,15 +102,17 @@ final class EventListViewModel {
                     return .just(Const.logoutURLString)
                 }
 
-            return Observable.merge(eventManageURLString, logoutURLString)
+            Observable.merge(eventManageURLString, logoutURLString)
                 .flatMap { URL(string: $0).map(Observable.just) ?? .empty() }
                 .map { URLRequest(url: $0) }
-                .share()
-        }()
+                .bind(to: _loadRequet)
+                .disposed(by: disposeBag)
+        }
 
-        self.navigationActionPolicy = navigationActionURL
+        navigationActionURL
             .map { _ in .allow }
-            .share()
+            .bind(to: _navigationActionPolicy)
+            .disposed(by: disposeBag)
 
         let _hideLoading = PublishRelay<Bool>()
         self.hideLoading = _hideLoading.asObservable()

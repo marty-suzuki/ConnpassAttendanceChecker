@@ -6,7 +6,6 @@
 //  Copyright © 2018年 marty-suzuki. All rights reserved.
 //
 
-import Foundation
 import WebKit
 import RxSwift
 import RxCocoa
@@ -35,9 +34,6 @@ final class ParticipantListViewModel {
     let participants: PropertyRelay<[Participant]>
 
     let reloadData: Observable<Void>
-    let participantsURL: Observable<URL>
-    let navigationActionPolicy: Observable<WKNavigationActionPolicy>
-    let getHTMLDocument: Observable<Void>
     let closeKeyboard: Observable<Void>
     let showCheckedAlert: Observable<CheckedAlertElement>
     let scrollTo: Observable<IndexPath>
@@ -57,12 +53,11 @@ final class ParticipantListViewModel {
     private let _searchType = BehaviorRelay<SearchType>(value: .number)
     private let disposeBag = DisposeBag()
     private let dataStore: ParticipantDataStore
+    private let webhook: WebhookView
 
     init(event: Event,
+         processPool: WKProcessPool,
          viewDidAppear: Observable<Bool>,
-         navigationAction: Observable<WKNavigationAction>,
-         htmlDocument: Observable<HTMLDocument>,
-         loading: Observable<Bool>,
          searchText: Observable<String?>,
          cancelButtonTap: Observable<Void>,
          searchButtonTap: Observable<Void>,
@@ -71,9 +66,21 @@ final class ParticipantListViewModel {
          checkedActionStyle: Observable<AlertActionStyle>,
          pickerItemSelected: Observable<(row: Int, component: Int)>,
          tableViewItemSelected: Observable<IndexPath>,
-         didFinishNavigation: Observable<Void>,
          loggedOut: AnyObserver<Void>,
          participantDataStore: ParticipantDataStore? = nil) {
+        let _loadRequet = PublishRelay<URLRequest>()
+        let _navigationActionPolicy = PublishRelay<WKNavigationActionPolicy>()
+
+        let _participantsURL = PublishRelay<URL>()
+        _participantsURL
+            .map { URLRequest(url: $0) }
+            .bind(to: _loadRequet)
+            .disposed(by: disposeBag)
+
+        self.webhook = WebhookView(processPool: processPool,
+                                   loadRequet: _loadRequet.asObservable(),
+                                   navigationActionPolicy: _navigationActionPolicy.asObservable())
+
         let _hideLoading = PublishRelay<Bool>()
         self.hideLoading = _hideLoading.asObservable()
 
@@ -87,6 +94,10 @@ final class ParticipantListViewModel {
             .unwrap()
             .withLatestFrom(_searchType) { ($0, $1) }
             .share(replay: 1, scope: .whileConnected)
+
+        let navigationActionURL = webhook.navigationAction
+            .map { $0.request.url }
+            .share()
 
         if let participantDataStore = participantDataStore {
             self.dataStore = participantDataStore
@@ -107,8 +118,16 @@ final class ParticipantListViewModel {
             let participant = tableViewItemSelected
                 .withLatestFrom(_displayParticipants) { $1[$0.row] }
 
+            let doc = navigationActionURL
+                .unwrap()
+                .withLatestFrom(_participantsURL) { ($0, $1) }
+                .map { $0.absoluteString.contains($1.absoluteString) }
+                .flatMapFirst { [webhook] contains in
+                    contains ? webhook.htmlDocument : .empty()
+                }
+
             self.dataStore = ParticipantDataStore(event: event,
-                                                  htmlDocument: htmlDocument,
+                                                  htmlDocument: doc,
                                                   updateChehckedWithIndex: updateChehckedWithIndex,
                                                   filterWithNunmber: number,
                                                   filterWithName: name,
@@ -124,15 +143,6 @@ final class ParticipantListViewModel {
             .map { "Search Type: \($0.title)" }
         self.keyboardType = _searchType
             .map { $0.keyboardType }
-
-        let _participantsURL = BehaviorRelay<URL?>(value: nil)
-        self.participantsURL = _participantsURL.unwrap()
-
-        let _navigationActionPolicy = PublishRelay<WKNavigationActionPolicy>()
-        self.navigationActionPolicy = _navigationActionPolicy.asObservable()
-
-        let _getHTMLDocument = PublishRelay<Void>()
-        self.getHTMLDocument = _getHTMLDocument.asObservable()
 
         let _scrollTo = PublishRelay<IndexPath>()
         self.scrollTo = _scrollTo.asObservable()
@@ -176,20 +186,6 @@ final class ParticipantListViewModel {
         dataStore.indexAndParticipant
             .map(CheckedAlertElement.init)
             .bind(to: _showCheckedAlert)
-            .disposed(by: disposeBag)
-
-        let navigationActionURL = navigationAction
-            .map { $0.request.url }
-            .share()
-
-        navigationActionURL
-            .unwrap()
-            .withLatestFrom(_participantsURL.unwrap()) { ($0, $1) }
-            .map { $0.absoluteString.contains($1.absoluteString) }
-            .flatMapFirst { contains in
-                contains ? didFinishNavigation : .empty()
-            }
-            .bind(to: _getHTMLDocument)
             .disposed(by: disposeBag)
 
         do {
@@ -250,6 +246,7 @@ final class ParticipantListViewModel {
 
             startFetching
                 .map { [event] in URL(string: "https://connpass.com/event/\(event.id)/participants/") }
+                .unwrap()
                 .bind(to: _participantsURL)
                 .disposed(by: disposeBag)
 

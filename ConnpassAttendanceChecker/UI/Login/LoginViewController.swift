@@ -12,23 +12,25 @@ import RxSwift
 import RxCocoa
 
 final class LoginViewController: UIViewController {
-    private let webview: WKWebView
+    private let webview: WebhookView
     private let loadingView = LoadingView(frame: .zero)
 
-    private let _navigationAction = PublishRelay<WKNavigationAction>()
+    private let _loadRequest: PublishRelay<URLRequest>
+    private let _navigationActionPolicy: PublishRelay<WKNavigationActionPolicy>
     private let _loggedIn: AnyObserver<Void>
-    private var navigationActionPolicyDisposeBag = DisposeBag()
     private let disposeBag = DisposeBag()
-    private lazy var viewModel = LoginViewModel(navigationAction: self._navigationAction.asObservable(),
-                                                isLoading: self.webview.rx.loading,
+    private lazy var viewModel = LoginViewModel(navigationAction: self.webview.navigationAction,
+                                                isLoading: self.webview.isLoading,
                                                 loggedIn: self._loggedIn)
 
     init(processPool: WKProcessPool, loggedIn: AnyObserver<Void>) {
-        self.webview = {
-            let config = WKWebViewConfiguration()
-            config.processPool = processPool
-            return WKWebView(frame: .zero, configuration: config)
-        }()
+        let loadRequest = PublishRelay<URLRequest>()
+        let navigationActionPolicy = PublishRelay<WKNavigationActionPolicy>()
+        self.webview = WebhookView(processPool: processPool,
+                              loadRequet: loadRequest.asObservable(),
+                              navigationActionPolicy: navigationActionPolicy.asObservable())
+        self._loadRequest = loadRequest
+        self._navigationActionPolicy = navigationActionPolicy
         self._loggedIn = loggedIn
         super.init(nibName: nil, bundle: nil)
     }
@@ -40,32 +42,21 @@ final class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        webview.navigationDelegate = self
-        view.ex.addEdges(to: webview)
+        view.ex.addEdges(to: webview.view)
 
         loadingView.isHidden = true
         view.ex.addEdges(to: loadingView)
 
         viewModel.loadRequest
-            .bind(to: Binder(webview) { webview, request in
-                webview.load(request)
-            })
+            .bind(to: _loadRequest)
             .disposed(by: disposeBag)
 
         viewModel.hideLoading
             .bind(to: loadingView.rx.isHidden)
             .disposed(by: disposeBag)
-    }
-}
-
-extension LoginViewController: WKNavigationDelegate {
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        navigationActionPolicyDisposeBag = DisposeBag()
 
         viewModel.navigationActionPolicy
-            .bind(onNext: decisionHandler)
-            .disposed(by: navigationActionPolicyDisposeBag)
-
-        _navigationAction.accept(navigationAction)
+            .bind(to: _navigationActionPolicy)
+            .disposed(by: disposeBag)
     }
 }
