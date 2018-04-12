@@ -65,7 +65,17 @@ final class EventListViewModel {
                 contains ? webhook.htmlDocument : .empty()
             }
 
+        let deleteAll = alertHandler
+            .flatMap { style, action -> Observable<Void> in
+                guard case .destructive = style, action == .logout else {
+                    return .empty()
+                }
+                return .just(())
+            }
+            .share()
+
         self.dataStore = DataStore(htmlDocument: htmlDocument,
+                                   deleteAll: deleteAll,
                                    database: database)
 
         self.events = dataStore.events
@@ -94,13 +104,8 @@ final class EventListViewModel {
             let eventManageURLString = startFetching
                 .map { _ in Const.eventManageURLString }
 
-            let logoutURLString = alertHandler
-                .flatMap { style, action -> Observable<String> in
-                    guard case .destructive = style, action == .logout else {
-                        return .empty()
-                    }
-                    return .just(Const.logoutURLString)
-                }
+            let logoutURLString = dataStore.allDeleted
+                .map { _ in Const.logoutURLString }
 
             Observable.merge(eventManageURLString, logoutURLString)
                 .flatMap { URL(string: $0).map(Observable.just) ?? .empty() }
@@ -138,18 +143,23 @@ final class EventListViewModel {
             return Observable.merge(logout, refresh)
         }()
 
-        navigationActionURL
+        let receiveLoggedoutURL = navigationActionURL
             .map {
                 $0.absoluteString.contains(Login.urlString) ||
                 $0.absoluteString == Const.rootURLString
             }
             .filter { $0 }
             .map { _ in }
+            .share()
+
+        receiveLoggedoutURL
             .bind(to: loggedOut)
             .disposed(by: disposeBag)
 
         Observable.merge(startFetching.map { false },
-                         dataStore.htmlUpdated.map { true })
+                         dataStore.htmlUpdated.map { true },
+                         deleteAll.map { false },
+                         receiveLoggedoutURL.map { true })
             .bind(to: _hideLoading)
             .disposed(by: disposeBag)
     }

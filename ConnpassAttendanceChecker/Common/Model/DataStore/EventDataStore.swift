@@ -14,13 +14,16 @@ import Kanna
 
 protocol EventDataStoreType: class {
     var htmlUpdated: Observable<Void> { get }
+    var allDeleted: Observable<Void> { get }
     var events: PropertyRelay<[Event]> { get }
     init(htmlDocument: Observable<HTMLDocument>,
+         deleteAll: Observable<Void>,
          database: Database)
 }
 
 final class EventDataStore: NSObject, EventDataStoreType {
     let htmlUpdated: Observable<Void>
+    let allDeleted: Observable<Void>
 
     let events: PropertyRelay<[Event]>
     private let _events: BehaviorRelay<[Event]>
@@ -30,6 +33,7 @@ final class EventDataStore: NSObject, EventDataStoreType {
     private let disposeBag = DisposeBag()
 
     init(htmlDocument: Observable<HTMLDocument>,
+         deleteAll: Observable<Void>,
          database: Database = .shared) {
         self.database = database
         let request: NSFetchRequest<StoredEvent> = StoredEvent.fetchRequest()
@@ -46,6 +50,9 @@ final class EventDataStore: NSObject, EventDataStoreType {
 
         let _htmlUpdated = PublishRelay<Void>()
         self.htmlUpdated = _htmlUpdated.asObservable()
+
+        let _allDeleted = PublishRelay<Void>()
+        self.allDeleted = _allDeleted.asObservable()
 
         htmlDocument
             .map { Event.list(from: $0) }
@@ -68,6 +75,17 @@ final class EventDataStore: NSObject, EventDataStoreType {
                 })
             }
             .bind(to: _htmlUpdated)
+            .disposed(by: disposeBag)
+
+        deleteAll
+            .flatMap { _ in
+                database.perform(block: { context in
+                    let request: NSFetchRequest<StoredEvent> = StoredEvent.fetchRequest()
+                    let results = try context.fetch(request)
+                    results.forEach { context.delete($0) }
+                })
+            }
+            .bind(to: _allDeleted)
             .disposed(by: disposeBag)
 
         super.init()
