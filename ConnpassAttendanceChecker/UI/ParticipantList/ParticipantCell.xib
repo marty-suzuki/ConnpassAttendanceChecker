@@ -50,7 +50,7 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jBf-WF-y8M">
-                                <rect key="frame" x="0.0" y="25.5" width="240" height="26.5"/>
+                                <rect key="frame" x="0.0" y="25.5" width="240" height="50"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DisplayName:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QNj-uv-RVq">
                                         <rect key="frame" x="0.0" y="0.0" width="107.5" height="19.5"/>
@@ -59,7 +59,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nve-bH-FK3">
-                                        <rect key="frame" x="127.5" y="0.0" width="112.5" height="26.5"/>
+                                        <rect key="frame" x="127.5" y="0.0" width="112.5" height="50"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="18"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -77,7 +77,7 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eME-YG-lbA">
-                                <rect key="frame" x="0.0" y="56" width="240" height="50"/>
+                                <rect key="frame" x="0.0" y="79.5" width="240" height="26.5"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="UserName:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7vI-db-Yc8">
                                         <rect key="frame" x="0.0" y="0.0" width="107.5" height="19.5"/>
@@ -86,7 +86,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cUl-pk-TQk">
-                                        <rect key="frame" x="127.5" y="0.0" width="112.5" height="50"/>
+                                        <rect key="frame" x="127.5" y="0.0" width="112.5" height="26.5"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="18"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -131,8 +131,11 @@
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
                 <outlet property="checkLabel" destination="Gk0-gq-egD" id="Y5e-qb-7SF"/>
+                <outlet property="displayNameCaption" destination="QNj-uv-RVq" id="TWj-dY-Z3D"/>
                 <outlet property="displayNameLabel" destination="Nve-bH-FK3" id="ZPP-Vd-O0G"/>
+                <outlet property="numberCaption" destination="c99-sV-mj4" id="MvF-ul-6He"/>
                 <outlet property="numberLabel" destination="j0L-0q-v8k" id="Zh1-6y-6M7"/>
+                <outlet property="userNameCaption" destination="7vI-db-Yc8" id="5Fd-06-Wpo"/>
                 <outlet property="userNameLabel" destination="cUl-pk-TQk" id="PNe-b5-VU8"/>
             </connections>
             <point key="canvasLocation" x="34" y="97"/>

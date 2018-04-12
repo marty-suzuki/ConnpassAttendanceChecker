@@ -48,6 +48,8 @@
 		37F09A8E207D311700776079 /* EventDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A8D207D311700776079 /* EventDataStore.swift */; };
 		37F09A91207E859700776079 /* ParticipantListDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A90207E859700776079 /* ParticipantListDetailViewController.swift */; };
 		37F09A93207E88A900776079 /* ParticipantListDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A92207E88A900776079 /* ParticipantListDetailViewModel.swift */; };
+		37F09A9B207FD3C200776079 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 37F09A9D207FD3C200776079 /* Localizable.strings */; };
+		37F09AA2207FD48A00776079 /* String.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09AA1207FD48A00776079 /* String.extension.swift */; };
 		ED7781B2207EFC9E0034F29F /* UIColor.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7781B1207EFC9E0034F29F /* UIColor.extension.swift */; };
 /* End PBXBuildFile section */
 
@@ -108,6 +110,9 @@
 		37F09A8D207D311700776079 /* EventDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDataStore.swift; sourceTree = "<group>"; };
 		37F09A90207E859700776079 /* ParticipantListDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantListDetailViewController.swift; sourceTree = "<group>"; };
 		37F09A92207E88A900776079 /* ParticipantListDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantListDetailViewModel.swift; sourceTree = "<group>"; };
+		37F09A9F207FD40500776079 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		37F09AA0207FD41A00776079 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		37F09AA1207FD48A00776079 /* String.extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.extension.swift; sourceTree = "<group>"; };
 		ED7781B1207EFC9E0034F29F /* UIColor.extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColor.extension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -200,6 +205,7 @@
 				378A2B4620789874001D9DDD /* WKWebView.extension.swift */,
 				37F09A89207D08D100776079 /* UserDefaults.extension.swift */,
 				ED7781B1207EFC9E0034F29F /* UIColor.extension.swift */,
+				37F09AA1207FD48A00776079 /* String.extension.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -335,6 +341,7 @@
 				37B640FD207674A00061D8AF /* LaunchScreen.storyboard */,
 				37B64100207674A00061D8AF /* Info.plist */,
 				37B640F82076749F0061D8AF /* ConnpassAttendanceChecker.xcdatamodeld */,
+				37F09A9D207FD3C200776079 /* Localizable.strings */,
 			);
 			path = Resource;
 			sourceTree = "<group>";
@@ -404,6 +411,7 @@
 			knownRegions = (
 				en,
 				Base,
+				ja,
 			);
 			mainGroup = 37B640E52076749F0061D8AF;
 			productRefGroup = 37B640EF2076749F0061D8AF /* Products */;
@@ -422,6 +430,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				37B640FF207674A00061D8AF /* LaunchScreen.storyboard in Resources */,
+				37F09A9B207FD3C200776079 /* Localizable.strings in Resources */,
 				37B640FC207674A00061D8AF /* Assets.xcassets in Resources */,
 				372DC0332078CDBC006E7208 /* ParticipantCell.xib in Resources */,
 			);
@@ -475,6 +484,7 @@
 				37297F8D207806AC0019A4EF /* Database.swift in Sources */,
 				37297F97207812A20019A4EF /* ParticipantListViewController.swift in Sources */,
 				37297F852077EFD90019A4EF /* EventListViewModel.swift in Sources */,
+				37F09AA2207FD48A00776079 /* String.extension.swift in Sources */,
 				372DC0322078CDBC006E7208 /* ParticipantCell.swift in Sources */,
 				37B640FA2076749F0061D8AF /* ConnpassAttendanceChecker.xcdatamodeld in Sources */,
 				37297F892077F4120019A4EF /* ObservableType.unwrap.swift in Sources */,
@@ -523,6 +533,15 @@
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
+		37F09A9D207FD3C200776079 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				37F09A9F207FD40500776079 /* ja */,
+				37F09AA0207FD41A00776079 /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
@@ -530,6 +549,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -590,6 +610,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";

@@ -13,7 +13,7 @@ import RxCocoa
 final class ParticipantListDetailViewController: UIViewController {
     private let tableview = UITableView(frame: .zero)
     private let loadingView = LoadingView(frame: .zero)
-    private let closeButton = UIBarButtonItem(title: "Close", style: .plain, target: nil, action: nil)
+    private let closeButton = UIBarButtonItem(title: String.ex.localized(.close), style: .plain, target: nil, action: nil)
 
     private let cellIdentifier = "Cell"
 
@@ -107,14 +107,14 @@ extension ParticipantListDetailViewController: UITableViewDataSource {
             text = viewModel.title
             cell.textLabel?.font = UIFont.boldSystemFont(ofSize: 32)
         case .participantCount:
-            text = "Number of Participants: \(viewModel.numberOfParticipants.value)"
+            text = "\(String.ex.localized(.numberOfParticipants)): \(viewModel.numberOfParticipants.value)"
         case .checkInCount:
-            text = "Number of CheckIns: \(viewModel.numberOfCheckIns.value)"
+            text = "\(String.ex.localized(.numberOfCheckIns)): \(viewModel.numberOfCheckIns.value)"
         case .refresh:
-            text = "Refresh"
+            text = String.ex.localized(.refresh)
             cell.textLabel?.textAlignment = .center
         case .export:
-            text = "Export"
+            text = String.ex.localized(.export)
             cell.textLabel?.textAlignment = .center
         }
 

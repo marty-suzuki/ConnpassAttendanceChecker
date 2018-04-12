@@ -14,7 +14,7 @@ import Kanna
 
 final class ParticipantListViewController: UIViewController {
     private let tableview = UITableView(frame: .zero)
-    private let detailButton = UIBarButtonItem(title: "Detail", style: .plain, target: nil, action: nil)
+    private let detailButton = UIBarButtonItem(title: String.ex.localized(.detail), style: .plain, target: nil, action: nil)
     private let selectorButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
     private let pickerView = UIPickerView(frame: .zero)
     private let loadingView = LoadingView(frame: .zero)
@@ -88,7 +88,7 @@ final class ParticipantListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        navigationItem.title = "Participant List"
+        navigationItem.title = String.ex.localized(.participantList)
         navigationItem.rightBarButtonItem = detailButton
 
         tableview.dataSource = self

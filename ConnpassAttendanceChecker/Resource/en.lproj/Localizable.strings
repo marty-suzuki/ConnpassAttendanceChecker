@@ -1,0 +1,36 @@
+/* 
+  Localizable.strings
+  ConnpassAttendanceChecker
+
+  Created by marty-suzuki on 2018/04/13.
+  Copyright © 2018年 marty-suzuki. All rights reserved.
+*/
+
+"All" = "All";
+"Cancel" = "Cancel";
+"Check" = "Check";
+"Close" = "Close";
+"Detail" = "Detail";
+"DisplayName" = "DisplayName";
+"DoYouThisParticipant" = "Do you %@ this participant?";
+"DoYouWantToRefresh" = "Do you want to refresh?";
+"Export" = "Export";
+"ExportAsCSV" = "Export as CSV";
+"HowDoYouExportParticipantList" = "How do you export participant list?";
+"In" = "In";
+"Logout" = "Logout";
+"ManagedEventList" = "Managed Event List";
+"No" = "No";
+"Number" = "Number";
+"NumberOfCheckIns" = "Number of CheckIns";
+"NumberOfParticipants" = "Number of Participants";
+"OnlyCheckIn" = "Only CheckIn";
+"Or" = "or";
+"Out" = "Out";
+"Refresh" = "Refresh";
+"ParticipantList" = "Participant List";
+"ParticipantListRefresh" = "Participant List Refresh";
+"UserName" = "UserName";
+"SearchType" = "Search Type";
+"Yes" = "Yes";
+

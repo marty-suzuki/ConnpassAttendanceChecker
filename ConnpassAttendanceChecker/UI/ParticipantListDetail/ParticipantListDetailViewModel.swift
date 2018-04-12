@@ -19,9 +19,9 @@ final class ParticipantListDetailViewModel {
         case export
     }
 
-    enum CsvStyle: String {
-        case all = "All"
-        case onlyCheckIn = "Only CheckIn"
+    enum CsvStyle {
+        case all
+        case onlyCheckIn
     }
 
     let title: String
@@ -58,9 +58,10 @@ final class ParticipantListDetailViewModel {
         let refreshAlert = selectedRowAndIndexPath
             .filter { $0.0 == .refresh }
             .map { _ -> (AlertElement, Row) in
-                return (AlertElement(title: "Participant List Refresh",
-                                     message: "Do you want to refresh?",
-                                     actions: [.default("YES"), .cancel("NO")]),
+                return (AlertElement(title: String.ex.localized(.participantListRefresh),
+                                     message: String.ex.localized(.doYouWantToRefresh),
+                                     actions: [.default(String.ex.localized(.yes)),
+                                               .cancel(String.ex.localized(.no))]),
                         .refresh)
             }
             .share()
@@ -68,11 +69,11 @@ final class ParticipantListDetailViewModel {
         let csvFilterAlert = selectedRowAndIndexPath
             .filter { $0.0 == .export }
             .map { _ -> (AlertElement, Row) in
-                return (AlertElement(title: "Export as CSV",
-                                     message: "How do you export participant list?",
-                                     actions: [.default(CsvStyle.all.rawValue),
-                                               .default(CsvStyle.onlyCheckIn.rawValue),
-                                               .cancel("Cancel")]),
+                return (AlertElement(title: String.ex.localized(.exportAsCSV),
+                                     message: String.ex.localized(.howDoYouExportParticipantList),
+                                     actions: [.default(CsvStyle.all.title),
+                                               .default(CsvStyle.onlyCheckIn.title),
+                                               .cancel(String.ex.localized(.cancel))]),
                         .export)
             }
             .share()
@@ -182,6 +183,30 @@ extension ParticipantListDetailViewModel.Row {
         case .export,
              .refresh:
             return true
+        }
+    }
+}
+
+extension ParticipantListDetailViewModel.CsvStyle {
+    var title: String {
+        let ex = String.ex
+        switch  self {
+        case .all:
+            return ex.localized(.all)
+        case .onlyCheckIn:
+            return ex.localized(.onlyCheckIn)
+        }
+    }
+
+    init?(rawValue: String) {
+        let ex = String.ex
+        switch rawValue {
+        case ex.localized(.all):
+            self = .all
+        case ex.localized(.onlyCheckIn):
+            self = .onlyCheckIn
+        default:
+            return nil
         }
     }
 }

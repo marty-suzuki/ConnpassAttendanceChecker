@@ -143,7 +143,7 @@ final class ParticipantListViewModel {
         self.participants = PropertyRelay(_displayParticipants)
         self.searchTypes = _searchTypes.asObservable()
         self.selectorTitle = _searchType
-            .map { "Search Type: \($0.title)" }
+            .map { "\(String.ex.localized(.searchType)): \($0.title)" }
         self.keyboardType = _searchType
             .map { $0.keyboardType }
 
@@ -263,25 +263,27 @@ final class ParticipantListViewModel {
 
 extension ParticipantListViewModel.CheckedAlertElement {
     fileprivate init(index: Int, participant: Participant) {
+        let ex = String.ex
         let strings = [
-            "Number: \(participant.number)",
-            "DisplayName: \(participant.displayName)",
-            "UserName: \(participant.userName)"
+            "\(ex.localized(.number)): \(participant.number)",
+            "\(ex.localized(.displayName)): \(participant.displayName)",
+            "\(ex.localized(.userName)): \(participant.userName)"
         ]
-        let string = "Check \(participant.isChecked ? "Out" : "In")"
+        let string = "\(ex.localized(.check))\(ex.localized(participant.isChecked ? .out : .in))"
         self.index = index
-        self.title = "Do you \(string) this participant?"
+        self.title = String(format: ex.localized(.doYouThisParticipant), string)
         self.message = String(strings.joined(separator: "\n"))
         self.isChecked = participant.isChecked
-        self.actions = [.default(string), .destructive("Cancel")]
+        self.actions = [.default(string), .destructive(ex.localized(.cancel))]
     }
 }
 
 extension ParticipantListViewModel.SearchType {
     var title: String {
+        let ex = String.ex
         switch self {
-        case .number: return "Number"
-        case .name: return "Username or DisplayName"
+        case .number: return ex.localized(.number)
+        case .name: return "\(ex.localized(.userName)) \(ex.localized(.or)) \(ex.localized(.displayName))"
         }
     }
 

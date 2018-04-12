@@ -16,6 +16,15 @@ final class ParticipantCell: UITableViewCell {
     @IBOutlet private weak var userNameLabel: UILabel!
     @IBOutlet private weak var checkLabel: UILabel!
 
+    @IBOutlet private weak var numberCaption: UILabel! {
+        didSet { numberCaption.text = String.ex.localized(.number) }
+    }
+    @IBOutlet private weak var displayNameCaption: UILabel! {
+        didSet { displayNameCaption.text = String.ex.localized(.displayName) }
+    }
+    @IBOutlet private weak var userNameCaption: UILabel! {
+        didSet { userNameCaption.text = String.ex.localized(.userName) }
+    }
 
     override func awakeFromNib() {
         super.awakeFromNib()
