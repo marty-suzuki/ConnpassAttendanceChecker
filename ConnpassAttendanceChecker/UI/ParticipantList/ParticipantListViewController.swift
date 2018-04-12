@@ -59,7 +59,7 @@ final class ParticipantListViewController: UIViewController {
     private let _checkedActionStyle = PublishRelay<AlertActionStyle>()
     private lazy var viewModel = ParticipantListViewModel(event: self.event,
                                                           processPool: self.processPool,
-                                                          viewDidAppear: self.ex.viewDidAppear,
+                                                          viewWillAppear: self.ex.viewWillAppear,
                                                           searchText: self.searchBar.rx.text.asObservable(),
                                                           cancelButtonTap: self.searchBar.rx.cancelButtonClicked.asObservable(),
                                                           searchButtonTap: self.searchBar.rx.searchButtonClicked.asObservable(),

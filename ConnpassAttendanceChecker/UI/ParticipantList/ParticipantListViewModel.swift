@@ -61,7 +61,7 @@ final class ParticipantListViewModel {
     init<Webhook: WebhookViewType, DataStore: ParticipantDataStoreType>
         (event: Event,
          processPool: WKProcessPool,
-         viewDidAppear: Observable<Bool>,
+         viewWillAppear: Observable<Bool>,
          searchText: Observable<String?>,
          cancelButtonTap: Observable<Void>,
          searchButtonTap: Observable<Void>,
@@ -240,7 +240,7 @@ final class ParticipantListViewModel {
         }
 
         do {
-            let fetchParticipants = Observable.combineLatest(viewDidAppear, dataStore.participants)
+            let fetchParticipants = Observable.combineLatest(viewWillAppear, dataStore.participants)
                 .filter { $1.isEmpty }
                 .map { _ in }
 

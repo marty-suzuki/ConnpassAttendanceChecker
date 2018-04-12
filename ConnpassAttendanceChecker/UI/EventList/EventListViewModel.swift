@@ -38,7 +38,7 @@ final class EventListViewModel {
 
     init<Webhook: WebhookViewType, DataStore: EventDataStoreType>
         (processPool: WKProcessPool,
-         viewDidAppear: Observable<Bool>,
+         viewWillAppear: Observable<Bool>,
          refreshButtonTap: Observable<Void>,
          logoutButtonTap: Observable<Void>,
          itemSelected: Observable<IndexPath>,
@@ -85,7 +85,7 @@ final class EventListViewModel {
             .withLatestFrom(events) { $1[$0.row] }
             .share()
 
-        let fetchEvents = Observable.combineLatest(viewDidAppear, dataStore.events)
+        let fetchEvents = Observable.combineLatest(viewWillAppear, dataStore.events)
             .filter { $1.isEmpty }
             .map { _ in }
 

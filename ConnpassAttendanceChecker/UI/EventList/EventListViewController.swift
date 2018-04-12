@@ -18,7 +18,7 @@ final class EventListViewController: UIViewController {
     private let loadingView = LoadingView(frame: .zero)
 
     private lazy var viewModel = EventListViewModel(processPool: self.processPool,
-                                                    viewDidAppear: self.ex.viewDidAppear,
+                                                    viewWillAppear: self.ex.viewWillAppear,
                                                     refreshButtonTap: self.refreshButton.rx.tap.asObservable(),
                                                     logoutButtonTap: self.logoutButton.rx.tap.asObservable(),
                                                     itemSelected: self.tableview.rx.itemSelected.asObservable(),
