@@ -57,4 +57,12 @@ extension Participant {
         self.userName = participant.userName ?? ""
         self.isChecked = participant.isChecked
     }
+
+    static func firstLine() -> String {
+        return "number,username,displayname,isChecked\n"
+    }
+
+    func toCsvString() -> String {
+        return "\(number),\(userName),\(displayName),\(isChecked)\n"
+    }
 }

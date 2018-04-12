@@ -73,7 +73,7 @@ final class ParticipantListDetailViewModel {
                                      actions: [.default(CsvStyle.all.rawValue),
                                                .default(CsvStyle.onlyCheckIn.rawValue),
                                                .cancel("Cancel")]),
-                        .refresh)
+                        .export)
             }
             .share()
 
@@ -97,27 +97,26 @@ final class ParticipantListDetailViewModel {
             }
             .share()
 
-        let refresh = alertHandler
-            .filter { $0.isDefault && $1 == .refresh }
-            .share()
-
+        let event = childViewModel.event
         let csvURL = export
             .withLatestFrom(childViewModel.participants) { ($0, $1) }
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .default))
-            .map { style, participants -> URL? in
-                let firstLine = "number,username,displayname,isChecked\n"
+            .map { [event] style, participants -> URL? in
                 let strings: [String]
                 switch style {
                 case .all:
                     strings = participants
-                        .map { "\($0.number),\($0.userName),\($0.displayName),\($0.isChecked)\n" }
+                        .map { $0.toCsvString() }
                 case .onlyCheckIn:
                     strings = participants
-                        .flatMap { $0.isChecked ? "\($0.number),\($0.userName),\($0.displayName),\($0.isChecked)\n" : nil }
+                        .compactMap { $0.isChecked ? $0.toCsvString() : nil }
                 }
-                let csvString = firstLine + strings.joined()
+                let csvString = Participant.firstLine() + strings.joined()
 
-                guard let docsPath = NSSearchPathForDirectoriesInDomains(.documentationDirectory, .userDomainMask, true).first else {
+                guard let docsPath = NSSearchPathForDirectoriesInDomains(.documentationDirectory,
+                                                                         .userDomainMask,
+                                                                         true).first
+                else {
                     return nil
                 }
                 let directoryPath = docsPath.appending("/csv")
@@ -130,7 +129,7 @@ final class ParticipantListDetailViewModel {
                     return nil
                 }
 
-                let filePath = directoryPath.appending("/participants.csv")
+                let filePath = directoryPath.appending("/event\(event.id)_participants.csv")
                 let fileURL = URL(fileURLWithPath: filePath)
 
                 do {
@@ -142,6 +141,10 @@ final class ParticipantListDetailViewModel {
             }
             .share()
 
+        let refresh = alertHandler
+            .filter { $0.isDefault && $1 == .refresh }
+            .share()
+
         Observable.merge(childViewModel.hideLoading,
                          refresh.map { _ in false },
                          export.map { _ in false },
@@ -150,6 +153,7 @@ final class ParticipantListDetailViewModel {
             .disposed(by: disposeBag)
 
         self.csvURL = csvURL.unwrap()
+            .debug()
 
         childViewModel.participants
             .map { $0.lazy.filter { $0.isChecked }.count }
