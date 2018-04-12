@@ -235,12 +235,9 @@
 		37B640F02076749F0061D8AF /* ConnpassAttendanceChecker */ = {
 			isa = PBXGroup;
 			children = (
+				37F09A98207FD14900776079 /* Resource */,
 				373FB7E82077E20D007A5CE2 /* Common */,
 				373FB7E92077E217007A5CE2 /* UI */,
-				37B640FB207674A00061D8AF /* Assets.xcassets */,
-				37B640FD207674A00061D8AF /* LaunchScreen.storyboard */,
-				37B64100207674A00061D8AF /* Info.plist */,
-				37B640F82076749F0061D8AF /* ConnpassAttendanceChecker.xcdatamodeld */,
 			);
 			path = ConnpassAttendanceChecker;
 			sourceTree = "<group>";
@@ -329,6 +326,17 @@
 				37F09A92207E88A900776079 /* ParticipantListDetailViewModel.swift */,
 			);
 			path = ParticipantListDetail;
+			sourceTree = "<group>";
+		};
+		37F09A98207FD14900776079 /* Resource */ = {
+			isa = PBXGroup;
+			children = (
+				37B640FB207674A00061D8AF /* Assets.xcassets */,
+				37B640FD207674A00061D8AF /* LaunchScreen.storyboard */,
+				37B64100207674A00061D8AF /* Info.plist */,
+				37B640F82076749F0061D8AF /* ConnpassAttendanceChecker.xcdatamodeld */,
+			);
+			path = Resource;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -643,7 +651,7 @@
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
-				INFOPLIST_FILE = ConnpassAttendanceChecker/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/ConnpassAttendanceChecker/Resource/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -667,7 +675,7 @@
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
-				INFOPLIST_FILE = ConnpassAttendanceChecker/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/ConnpassAttendanceChecker/Resource/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
