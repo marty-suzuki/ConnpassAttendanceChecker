@@ -46,7 +46,6 @@ final class ParticipantListViewModel {
     let keyboardType: Observable<UIKeyboardType>
     let deselectIndexPath: Observable<IndexPath>
     let hideLoading: Observable<Bool>
-    let enableRefresh: Observable<Bool>
     let showDetail: Observable<Void>
 
     let refresh: AnyObserver<Void>
@@ -140,9 +139,6 @@ final class ParticipantListViewModel {
                                        indexOfParticipant: participant,
                                        database: database)
         }
-
-        self.enableRefresh = Observable.combineLatest(dataStore.participants, _hideLoading)
-            .map { !$0.isEmpty && $1 }
 
         self.participants = PropertyRelay(_displayParticipants)
         self.searchTypes = _searchTypes.asObservable()
