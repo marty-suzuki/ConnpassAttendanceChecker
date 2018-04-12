@@ -53,18 +53,13 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
         request.sortDescriptors = [NSSortDescriptor(key: "number", ascending: true)]
         self.fetchedResultsController = database.makeFetchedResultsController(fetchRequest: request)
 
-        let participants: [Participant]
-        if event.participants.isEmpty {
-            do {
-                try fetchedResultsController.performFetch()
-            } catch let e {
-                print(e)
-            }
-            let results = fetchedResultsController.fetchedObjects ?? []
-            participants = results.compactMap(Participant.init)
-        } else {
-            participants = event.participants
+        do {
+            try fetchedResultsController.performFetch()
+        } catch let e {
+            print(e)
         }
+        let results = fetchedResultsController.fetchedObjects ?? []
+        let participants = results.compactMap(Participant.init)
         self._participants = BehaviorRelay(value: participants)
         self.participants = PropertyRelay(_participants)
 
