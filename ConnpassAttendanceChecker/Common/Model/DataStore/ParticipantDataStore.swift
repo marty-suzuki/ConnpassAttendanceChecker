@@ -49,16 +49,23 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
          database: Database = .shared) {
         self.database = database
         let request: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
-        request.predicate = NSPredicate(format: "eventID = %lld", event.id)
+        request.predicate = NSPredicate(format: "event.id = %lld", event.id)
         request.sortDescriptors = [NSSortDescriptor(key: "number", ascending: true)]
         self.fetchedResultsController = database.makeFetchedResultsController(fetchRequest: request)
-        do {
-            try fetchedResultsController.performFetch()
-        } catch let e {
-            print(e)
+
+        let participants: [Participant]
+        if event.participants.isEmpty {
+            do {
+                try fetchedResultsController.performFetch()
+            } catch let e {
+                print(e)
+            }
+            let results = fetchedResultsController.fetchedObjects ?? []
+            participants = results.compactMap(Participant.init)
+        } else {
+            participants = event.participants
         }
-        let results = fetchedResultsController.fetchedObjects ?? []
-        self._participants = BehaviorRelay(value: results.map(Participant.init))
+        self._participants = BehaviorRelay(value: participants)
         self.participants = PropertyRelay(_participants)
 
         self.indexAndParticipant = indexOfParticipant
@@ -106,7 +113,7 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
                 return database.perform(block: { context in
                     let request: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
                     request.fetchLimit = 1
-                    request.predicate = NSPredicate(format: "number = %lld AND eventID = %lld",
+                    request.predicate = NSPredicate(format: "number = %lld AND event.id = %lld",
                                                     participant.number,
                                                     participant.eventID)
 
@@ -127,12 +134,19 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
             .map { [event] in Participant.list(from: $0, eventID: event.id) }
             .flatMap { [event] participants -> Single<Void> in
                 database.perform(block: { [event] context in
-                    let request: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
-                    request.predicate = NSPredicate(format: "eventID = %lld", event.id)
-                    let results = try context.fetch(request)
+                    let eventRequest: NSFetchRequest<StoredEvent> = StoredEvent.fetchRequest()
+                    eventRequest.predicate = NSPredicate(format: "id = %lld", event.id)
+                    eventRequest.fetchLimit = 1
+                    guard let fetchedEvent = try context.fetch(eventRequest).first else {
+                        return
+                    }
+
+                    let participantRequest: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
+                    participantRequest.predicate = NSPredicate(format: "event.id = %lld", event.id)
+                    let fetchedParticipants = try context.fetch(participantRequest)
 
                     participants.forEach { participant in
-                        guard results.lazy.filter({
+                        guard fetchedParticipants.lazy.filter({
                             $0.number == participant.number &&
                             $0.userName == participant.userName &&
                             $0.displayName == participant.displayName
@@ -145,7 +159,7 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
                         model.ptype = participant.ptype
                         model.displayName = participant.displayName
                         model.userName = participant.userName
-                        model.eventID = Int64(participant.eventID)
+                        model.event = fetchedEvent
                     }
                 })
             }

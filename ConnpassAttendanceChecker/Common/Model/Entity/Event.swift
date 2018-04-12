@@ -51,6 +51,6 @@ extension Event: Decodable {
         self.id = Int(event.id)
         self.title = event.title ?? ""
         self.participants = (event.participants ?? [])
-            .compactMap { ($0 as? StoredParticipant).map(Participant.init) }
+            .compactMap { ($0 as? StoredParticipant).flatMap(Participant.init) }
     }
 }

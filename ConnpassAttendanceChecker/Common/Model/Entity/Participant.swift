@@ -49,9 +49,12 @@ extension Participant {
             }
     }
 
-    init(_ participant: StoredParticipant) {
+    init?(_ participant: StoredParticipant) {
+        guard let eventID = participant.event?.id else {
+            return nil
+        }
         self.ptype = participant.ptype ?? ""
-        self.eventID = Int(participant.eventID)
+        self.eventID = Int(eventID)
         self.number = Int(participant.number)
         self.displayName = participant.displayName ?? ""
         self.userName = participant.userName ?? ""

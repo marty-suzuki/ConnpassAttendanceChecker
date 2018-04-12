@@ -3,15 +3,15 @@
     <entity name="StoredEvent" representedClassName="StoredEvent" syncable="YES">
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="participants" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="StoredParticipant" syncable="YES"/>
+        <relationship name="participants" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="StoredParticipant" inverseName="event" inverseEntity="StoredParticipant" syncable="YES"/>
     </entity>
     <entity name="StoredParticipant" representedClassName="StoredParticipant" syncable="YES">
         <attribute name="displayName" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="eventID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="isChecked" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="number" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="ptype" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="userName" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="event" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="StoredEvent" inverseName="participants" inverseEntity="StoredEvent" syncable="YES"/>
     </entity>
     <elements>
         <element name="StoredEvent" positionX="-54" positionY="27" width="128" height="90"/>
