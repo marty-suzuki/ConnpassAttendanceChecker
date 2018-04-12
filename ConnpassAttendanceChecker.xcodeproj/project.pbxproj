@@ -50,6 +50,7 @@
 		37F09A93207E88A900776079 /* ParticipantListDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A92207E88A900776079 /* ParticipantListDetailViewModel.swift */; };
 		37F09A9B207FD3C200776079 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 37F09A9D207FD3C200776079 /* Localizable.strings */; };
 		37F09AA2207FD48A00776079 /* String.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09AA1207FD48A00776079 /* String.extension.swift */; };
+		37F09AA4207FE7B100776079 /* OS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09AA3207FE7B100776079 /* OS.swift */; };
 		ED7781B2207EFC9E0034F29F /* UIColor.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7781B1207EFC9E0034F29F /* UIColor.extension.swift */; };
 /* End PBXBuildFile section */
 
@@ -113,6 +114,7 @@
 		37F09A9F207FD40500776079 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		37F09AA0207FD41A00776079 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		37F09AA1207FD48A00776079 /* String.extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.extension.swift; sourceTree = "<group>"; };
+		37F09AA3207FE7B100776079 /* OS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OS.swift; sourceTree = "<group>"; };
 		ED7781B1207EFC9E0034F29F /* UIColor.extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColor.extension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -165,6 +167,7 @@
 				37B640F12076749F0061D8AF /* AppDelegate.swift */,
 				37297F8C207806AC0019A4EF /* Database.swift */,
 				37297F9020780D7A0019A4EF /* PropertyRelay.swift */,
+				37F09AA3207FE7B100776079 /* OS.swift */,
 				37EDE3CF207A8890008F7475 /* Protocol */,
 				373FB7F92077EA38007A5CE2 /* Extension */,
 				373FB7F82077EA1D007A5CE2 /* Model */,
@@ -472,6 +475,7 @@
 				37297F9B2078169A0019A4EF /* LoginViewController.swift in Sources */,
 				373FB7F12077E876007A5CE2 /* StoredParticipant+CoreDataProperties.swift in Sources */,
 				37297F9120780D7A0019A4EF /* PropertyRelay.swift in Sources */,
+				37F09AA4207FE7B100776079 /* OS.swift in Sources */,
 				37EDE3D1207A88BF008F7475 /* Enumerable.swift in Sources */,
 				373FB7F52077E8B3007A5CE2 /* Event.swift in Sources */,
 				373FB7F02077E876007A5CE2 /* StoredParticipant+CoreDataClass.swift in Sources */,

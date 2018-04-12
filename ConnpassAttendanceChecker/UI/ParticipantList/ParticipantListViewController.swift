@@ -26,7 +26,9 @@ final class ParticipantListViewController: UIViewController {
     private lazy var searchToolbar: UIToolbar = {
         let toolbar = UIToolbar(frame: .zero)
         toolbar.clipsToBounds = true
-        self.searchBar.translatesAutoresizingMaskIntoConstraints = false
+        if OS.current == .ios11 {
+            self.searchBar.translatesAutoresizingMaskIntoConstraints = false
+        }
         let textFeild = UIBarButtonItem(customView: self.searchBar)
         toolbar.setItems([textFeild], animated: false)
         return toolbar
@@ -41,7 +43,9 @@ final class ParticipantListViewController: UIViewController {
     }()
     private lazy var pickerToolbar: UIToolbar = {
         let toolbar = UIToolbar(frame: .zero)
-        self.pickerView.translatesAutoresizingMaskIntoConstraints = false
+        if OS.current == .ios11 {
+            self.pickerView.translatesAutoresizingMaskIntoConstraints = false
+        }
         let pickerView = UIBarButtonItem(customView: self.pickerView)
         toolbar.setItems([pickerView], animated: false)
         return toolbar
@@ -91,6 +95,10 @@ final class ParticipantListViewController: UIViewController {
         navigationItem.title = String.ex.localized(.participantList)
         navigationItem.rightBarButtonItem = detailButton
 
+        if OS.current == .ios10 {
+            tableview.rowHeight = UITableViewAutomaticDimension
+            tableview.estimatedRowHeight = 44
+        }
         tableview.dataSource = self
         let nib = UINib(nibName: ParticipantCell.identifier, bundle: nil)
         tableview.register(nib, forCellReuseIdentifier: ParticipantCell.identifier)
@@ -219,6 +227,21 @@ final class ParticipantListViewController: UIViewController {
         UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseOut, animations: {
             self.view.layoutIfNeeded()
         }, completion: nil)
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        if OS.current == .ios10 {
+            do {
+                let size = searchToolbar.bounds.size
+                searchBar.frame.size = CGSize(width: size.width - 40, height: size.height)
+            }
+            do {
+                let size = pickerToolbar.bounds.size
+                pickerView.frame.size = CGSize(width: size.width - 40, height: size.height)
+            }
+        }
     }
 }
 

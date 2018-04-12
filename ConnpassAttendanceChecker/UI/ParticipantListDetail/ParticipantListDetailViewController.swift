@@ -39,6 +39,10 @@ final class ParticipantListDetailViewController: UIViewController {
 
         navigationItem.leftBarButtonItem = closeButton
 
+        if OS.current == .ios10 {
+            tableview.rowHeight = UITableViewAutomaticDimension
+            tableview.estimatedRowHeight = 44
+        }
         tableview.dataSource = self
         tableview.register(UITableViewCell.self, forCellReuseIdentifier: cellIdentifier)
         view.ex.addEdges(to: tableview)
