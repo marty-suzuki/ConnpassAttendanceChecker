@@ -50,7 +50,7 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
         self.database = database
         let request: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
         request.predicate = NSPredicate(format: "eventID = %lld", event.id)
-        request.sortDescriptors = [NSSortDescriptor(key: "number", ascending: false)]
+        request.sortDescriptors = [NSSortDescriptor(key: "number", ascending: true)]
         self.fetchedResultsController = database.makeFetchedResultsController(fetchRequest: request)
         do {
             try fetchedResultsController.performFetch()

@@ -6,4 +6,20 @@
 //  Copyright © 2018年 marty-suzuki. All rights reserved.
 //
 
-import Foundation
+import UIKit
+
+struct UIColorExtension {
+    fileprivate let base: UIColor
+}
+
+extension UIColor {
+    static var ex: UIColorExtension.Type {
+        return UIColorExtension.self
+    }
+}
+
+extension UIColorExtension {
+    static var blue: UIColor {
+        return UIColor(red: 0, green: 0.478, blue: 1, alpha: 1)
+    }
+}

@@ -48,6 +48,7 @@
 		37F09A8E207D311700776079 /* EventDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A8D207D311700776079 /* EventDataStore.swift */; };
 		37F09A91207E859700776079 /* ParticipantListDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A90207E859700776079 /* ParticipantListDetailViewController.swift */; };
 		37F09A93207E88A900776079 /* ParticipantListDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A92207E88A900776079 /* ParticipantListDetailViewModel.swift */; };
+		ED7781B2207EFC9E0034F29F /* UIColor.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7781B1207EFC9E0034F29F /* UIColor.extension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -107,6 +108,7 @@
 		37F09A8D207D311700776079 /* EventDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDataStore.swift; sourceTree = "<group>"; };
 		37F09A90207E859700776079 /* ParticipantListDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantListDetailViewController.swift; sourceTree = "<group>"; };
 		37F09A92207E88A900776079 /* ParticipantListDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantListDetailViewModel.swift; sourceTree = "<group>"; };
+		ED7781B1207EFC9E0034F29F /* UIColor.extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColor.extension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -197,6 +199,7 @@
 				37297F8A2077FBE50019A4EF /* UIAlertController.extension.swift */,
 				378A2B4620789874001D9DDD /* WKWebView.extension.swift */,
 				37F09A89207D08D100776079 /* UserDefaults.extension.swift */,
+				ED7781B1207EFC9E0034F29F /* UIColor.extension.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -473,6 +476,7 @@
 				37F09A88207CFF9500776079 /* RootViewModel.swift in Sources */,
 				373FB7F32077E876007A5CE2 /* StoredEvent+CoreDataProperties.swift in Sources */,
 				37297F9D207879080019A4EF /* ParticipantListViewModel.swift in Sources */,
+				ED7781B2207EFC9E0034F29F /* UIColor.extension.swift in Sources */,
 				37F09A8E207D311700776079 /* EventDataStore.swift in Sources */,
 				37B640F22076749F0061D8AF /* AppDelegate.swift in Sources */,
 				37EDE3CE2079160F008F7475 /* LoginViewModel.swift in Sources */,

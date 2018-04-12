@@ -31,6 +31,7 @@ final class ParticipantListViewModel {
         case name
     }
 
+    let event: Event
     let participants: PropertyRelay<[Participant]>
 
     let reloadData: Observable<Void>
@@ -74,6 +75,7 @@ final class ParticipantListViewModel {
          webhookType: Webhook.Type,
          dataStoreType: DataStore.Type,
          database: Database = .shared) {
+        self.event = event
         self.showDetail = detailButtonTap
         self.refresh = _refresh.asObserver()
 

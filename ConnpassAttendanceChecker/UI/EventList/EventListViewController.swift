@@ -50,7 +50,7 @@ final class EventListViewController: UIViewController {
         view.ex.addEdges(to: tableview)
         navigationItem.rightBarButtonItem = refreshButton
         navigationItem.leftBarButtonItem = logoutButton
-        navigationItem.title = "Connpass Event List"
+        navigationItem.title = "Managed Event List"
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
 
         tableview.dataSource = self
@@ -83,6 +83,7 @@ final class EventListViewController: UIViewController {
             .disposed(by: disposeBag)
 
         viewModel.showAlert
+            .observeOn(ConcurrentMainScheduler.instance)
             .flatMap { [weak self] arg in
                 (self.map {
                     UIAlertController.ex.showAlert(element: arg.0, to: $0)
@@ -110,6 +111,7 @@ extension EventListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath)
         cell.textLabel?.text = "\(viewModel.events.value[indexPath.row].title)"
+        cell.textLabel?.numberOfLines = 0
         return cell
     }
 }

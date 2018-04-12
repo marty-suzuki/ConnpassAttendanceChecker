@@ -14,7 +14,7 @@ import Kanna
 
 final class ParticipantListViewController: UIViewController {
     private let tableview = UITableView(frame: .zero)
-    private let detailButton = UIBarButtonItem(barButtonSystemItem: .edit, target: nil, action: nil)
+    private let detailButton = UIBarButtonItem(title: "Detail", style: .plain, target: nil, action: nil)
     private let selectorButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
     private let pickerView = UIPickerView(frame: .zero)
     private let loadingView = LoadingView(frame: .zero)
@@ -142,6 +142,7 @@ final class ParticipantListViewController: UIViewController {
             .disposed(by: disposeBag)
 
         viewModel.showCheckedAlert
+            .observeOn(ConcurrentMainScheduler.instance)
             .flatMap { [weak self] element in
                 self.map {
                     UIAlertController(title: element.title,
