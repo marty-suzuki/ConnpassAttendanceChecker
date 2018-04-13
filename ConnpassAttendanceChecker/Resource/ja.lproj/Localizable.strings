@@ -13,7 +13,9 @@
 "Detail" = "詳細";
 "DisplayName" = "表示名";
 "DoYouThisParticipant" = "この参加者を%@にしますか?";
+"DoYouWantLogout" = "ログアウトしますか?";
 "DoYouWantToRefresh" = "更新を行いますか?";
+"DoYouWantRefreshEventList" = "管理中のイベント一覧を更新しますか?";
 "Export" = "外部へ出力";
 "ExportAsCSV" = "CSVで出力";
 "HowDoYouExportParticipantList" = "どのように出力しますか?";

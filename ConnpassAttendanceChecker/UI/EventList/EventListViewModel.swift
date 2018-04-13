@@ -128,17 +128,23 @@ final class EventListViewModel {
         self.showAlert = {
             let logout = logoutButtonTap
                 .map { _ -> (AlertElement, ActionType) in
-                    (AlertElement(title: "Logout",
-                                  message: "Do you want logout?",
-                                  actions: [.destructive("Logout"), .cancel("Cancel")]),
-                     .logout)
+                    let ex = String.ex
+                    let logout = ex.localized(.logout)
+                    return (AlertElement(title: logout,
+                                         message: ex.localized(.doYouWantLogout),
+                                         actions: [.destructive(logout),
+                                                   .cancel(ex.localized(.cancel))]),
+                            .logout)
                 }
             let refresh = refreshButtonTap
                 .map { _ -> (AlertElement, ActionType) in
-                    (AlertElement(title: "Refresh",
-                                  message: "Do you want refresh event list?",
-                                  actions: [.default("Refresh"), .cancel("Cancel")]),
-                     .refresh)
+                    let ex = String.ex
+                    let refresh =  ex.localized(.refresh)
+                    return  (AlertElement(title: refresh,
+                                          message: ex.localized(.doYouWantRefreshEventList),
+                                          actions: [.default(refresh),
+                                                    .cancel(ex.localized(.cancel))]),
+                             .refresh)
                 }
             return Observable.merge(logout, refresh)
         }()

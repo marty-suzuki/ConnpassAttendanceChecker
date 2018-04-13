@@ -13,7 +13,9 @@
 "Detail" = "Detail";
 "DisplayName" = "DisplayName";
 "DoYouThisParticipant" = "Do you %@ this participant?";
+"DoYouWantLogout" = "Do you want logout?";
 "DoYouWantToRefresh" = "Do you want to refresh?";
+"DoYouWantRefreshEventList" = "Do you want refresh event list?";
 "Export" = "Export";
 "ExportAsCSV" = "Export as CSV";
 "HowDoYouExportParticipantList" = "How do you export participant list?";
