@@ -8,15 +8,22 @@
 
 import Foundation
 
-struct UserDefaultsExtension {
-    fileprivate let base: UserDefaults
+protocol UserDefaultsType: class {
+    func set(_ value: Bool, forKey key: String)
+    func bool(forKey key: String) -> Bool
 }
 
-extension UserDefaults {
+struct UserDefaultsExtension {
+    fileprivate let base: UserDefaultsType
+}
+
+extension UserDefaultsType {
     var ex: UserDefaultsExtension {
         return UserDefaultsExtension(base: self)
     }
 }
+
+extension UserDefaults: UserDefaultsType {}
 
 extension UserDefaultsExtension {
     private enum Const {

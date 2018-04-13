@@ -41,11 +41,14 @@ final class ParticipantListDetailViewModel {
     private let _numberOfParticipants = BehaviorRelay<Int>(value: 0)
 
     private let disposeBag = DisposeBag()
+    private let fileManager: FileManagerType
 
     init(childViewModel: ParticipantListViewModel,
          closeButtonTap: Observable<Void>,
          itemSelected: Observable<IndexPath>,
-         alertHandler: Observable<(AlertActionStyle, Row)>) {
+         alertHandler: Observable<(AlertActionStyle, Row)>,
+         fileManager: FileManagerType = FileManager.default) {
+        self.fileManager = fileManager
         let _hideLoading = PublishRelay<Bool>()
         self.hideLoading = _hideLoading.asObservable()
 
@@ -102,7 +105,11 @@ final class ParticipantListDetailViewModel {
         let csvURL = export
             .withLatestFrom(childViewModel.participants) { ($0, $1) }
             .observeOn(ConcurrentDispatchQueueScheduler(qos: .default))
-            .map { [event] style, participants -> URL? in
+            .map { [event, weak fileManager] style, participants -> URL? in
+                guard let fileManager = fileManager else {
+                    return nil
+                }
+
                 let strings: [String]
                 switch style {
                 case .all:
@@ -123,9 +130,9 @@ final class ParticipantListDetailViewModel {
                 let directoryPath = docsPath.appending("/csv")
 
                 do {
-                    try FileManager.default.createDirectory(atPath: directoryPath,
-                                                            withIntermediateDirectories: true,
-                                                            attributes: nil)
+                    try fileManager.createDirectory(atPath: directoryPath,
+                                                    withIntermediateDirectories: true,
+                                                    attributes: nil)
                 } catch _ {
                     return nil
                 }
@@ -134,7 +141,7 @@ final class ParticipantListDetailViewModel {
                 let fileURL = URL(fileURLWithPath: filePath)
 
                 do {
-                    try csvString.write(to: fileURL, atomically: true, encoding: .utf8)
+                    try fileManager.write(csvString, to: fileURL, atomically: true, encoding: .utf8)
                     return fileURL
                 } catch _ {
                     return nil
@@ -198,7 +205,7 @@ extension ParticipantListDetailViewModel.CsvStyle {
         }
     }
 
-    init?(rawValue: String) {
+    fileprivate init?(rawValue: String) {
         let ex = String.ex
         switch rawValue {
         case ex.localized(.all):

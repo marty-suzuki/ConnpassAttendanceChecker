@@ -24,7 +24,7 @@ protocol ParticipantDataStoreType: class {
          filterWithNunmber: Observable<Int>,
          filterWithName: Observable<String>,
          indexOfParticipant: Observable<Participant>,
-         database: Database)
+         database: DatabaseType)
 }
 
 final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
@@ -36,7 +36,7 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
     let participants: PropertyRelay<[Participant]>
     private let _participants: BehaviorRelay<[Participant]>
 
-    private let database: Database
+    private let database: DatabaseType
     private let fetchedResultsController: NSFetchedResultsController<StoredParticipant>
     private let disposeBag = DisposeBag()
 
@@ -46,7 +46,7 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
          filterWithNunmber: Observable<Int>,
          filterWithName: Observable<String>,
          indexOfParticipant: Observable<Participant>,
-         database: Database = .shared) {
+         database: DatabaseType = Database.shared) {
         self.database = database
         let request: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
         request.predicate = NSPredicate(format: "event.id = %lld", event.id)
@@ -103,9 +103,9 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
 
         updateChehckedWithIndex
             .withLatestFrom(_participants) { ($0.0, $0.1, $1) }
-            .flatMap { isChecked, index, participants -> Observable<Int> in
+            .flatMap { [weak database] isChecked, index, participants -> Observable<Int> in
                 let participant = participants[index]
-                return database.perform(block: { context in
+                return database?.perform(block: { context in
                     let request: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
                     request.fetchLimit = 1
                     request.predicate = NSPredicate(format: "number = %lld AND event.id = %lld",
@@ -120,15 +120,15 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
                 })
                 .asObservable()
                 .catchError { _ in .empty() }
-                .map { index }
+                .map { index } ?? .empty()
             }
             .bind(to: _updatedIndex)
             .disposed(by: disposeBag)
 
         htmlDocument
             .map { [event] in Participant.list(from: $0, eventID: event.id) }
-            .flatMap { [event] participants -> Single<Void> in
-                database.perform(block: { [event] context in
+            .flatMap { [event, weak database] participants -> Observable<Void> in
+                database?.perform(block: { [event] context in
                     let eventRequest: NSFetchRequest<StoredEvent> = StoredEvent.fetchRequest()
                     eventRequest.predicate = NSPredicate(format: "id = %lld", event.id)
                     eventRequest.fetchLimit = 1
@@ -156,7 +156,7 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
                         model.userName = participant.userName
                         model.event = fetchedEvent
                     }
-                })
+                }).asObservable() ?? .empty()
             }
             .bind(to: _htmlUpdated)
             .disposed(by: disposeBag)

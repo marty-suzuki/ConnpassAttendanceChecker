@@ -17,12 +17,14 @@ final class RootViewModel {
 
     private let _processPool: BehaviorRelay<WKProcessPool>
     private let _isLoggedIn: BehaviorRelay<Bool>
+    private let userDefaults: UserDefaultsType
     private let disposeBag = DisposeBag()
 
     init(loggedIn: Observable<Void>,
          loggedOut: Observable<Void>,
          processPool: WKProcessPool = .init(),
-         userDefaults: UserDefaults = .standard) {
+         userDefaults: UserDefaultsType = UserDefaults.standard) {
+        self.userDefaults = userDefaults
         self._processPool = BehaviorRelay(value: processPool)
         self._isLoggedIn = BehaviorRelay(value: userDefaults.ex.isLoggedIn)
         self.showLogin = _isLoggedIn
@@ -39,9 +41,9 @@ final class RootViewModel {
 
         _isLoggedIn
             .skip(1)
-            .subscribe(onNext: {
-                var ex = userDefaults.ex
-                ex.isLoggedIn = $0
+            .subscribe(onNext: { [weak userDefaults] in
+                var ex = userDefaults?.ex
+                ex?.isLoggedIn = $0
             })
             .disposed(by: disposeBag)
     }

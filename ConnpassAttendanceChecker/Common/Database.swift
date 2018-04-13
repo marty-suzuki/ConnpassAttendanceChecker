@@ -9,7 +9,13 @@
 import CoreData
 import RxSwift
 
-final class Database {
+protocol DatabaseType: class {
+    func makeFetchedResultsController<T>(fetchRequest: NSFetchRequest<T>) -> NSFetchedResultsController<T>
+    func perform(block: @escaping (NSManagedObjectContext) throws -> (), completion: @escaping (Database.PerformResult) -> ())
+    func perform(block: @escaping (NSManagedObjectContext) throws -> ()) -> Single<Void>
+}
+
+final class Database: DatabaseType {
     private enum Const {
         static let name = "ConnpassAttendanceChecker"
         static let dataModelName = "ConnpassAttendanceChecker"

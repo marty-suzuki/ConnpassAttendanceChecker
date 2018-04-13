@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		37145523208127890034D597 /* FileManager.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37145522208127890034D597 /* FileManager.extension.swift */; };
 		37297F852077EFD90019A4EF /* EventListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37297F842077EFD90019A4EF /* EventListViewModel.swift */; };
 		37297F892077F4120019A4EF /* ObservableType.unwrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37297F882077F4120019A4EF /* ObservableType.unwrap.swift */; };
 		37297F8B2077FBE50019A4EF /* UIAlertController.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37297F8A2077FBE50019A4EF /* UIAlertController.extension.swift */; };
@@ -65,6 +66,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		37145522208127890034D597 /* FileManager.extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.extension.swift; sourceTree = "<group>"; };
 		37297F842077EFD90019A4EF /* EventListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventListViewModel.swift; sourceTree = "<group>"; };
 		37297F882077F4120019A4EF /* ObservableType.unwrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableType.unwrap.swift; sourceTree = "<group>"; };
 		37297F8A2077FBE50019A4EF /* UIAlertController.extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAlertController.extension.swift; sourceTree = "<group>"; };
@@ -209,6 +211,7 @@
 				37F09A89207D08D100776079 /* UserDefaults.extension.swift */,
 				ED7781B1207EFC9E0034F29F /* UIColor.extension.swift */,
 				37F09AA1207FD48A00776079 /* String.extension.swift */,
+				37145522208127890034D597 /* FileManager.extension.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -472,6 +475,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				37145523208127890034D597 /* FileManager.extension.swift in Sources */,
 				37297F9B2078169A0019A4EF /* LoginViewController.swift in Sources */,
 				373FB7F12077E876007A5CE2 /* StoredParticipant+CoreDataProperties.swift in Sources */,
 				37297F9120780D7A0019A4EF /* PropertyRelay.swift in Sources */,

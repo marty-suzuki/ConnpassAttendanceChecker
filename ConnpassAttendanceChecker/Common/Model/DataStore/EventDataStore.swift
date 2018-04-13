@@ -18,7 +18,7 @@ protocol EventDataStoreType: class {
     var events: PropertyRelay<[Event]> { get }
     init(htmlDocument: Observable<HTMLDocument>,
          deleteAll: Observable<Void>,
-         database: Database)
+         database: DatabaseType)
 }
 
 final class EventDataStore: NSObject, EventDataStoreType {
@@ -28,13 +28,13 @@ final class EventDataStore: NSObject, EventDataStoreType {
     let events: PropertyRelay<[Event]>
     private let _events: BehaviorRelay<[Event]>
 
-    private let database: Database
+    private let database: DatabaseType
     private let fetchedResultsController: NSFetchedResultsController<StoredEvent>
     private let disposeBag = DisposeBag()
 
     init(htmlDocument: Observable<HTMLDocument>,
          deleteAll: Observable<Void>,
-         database: Database = .shared) {
+         database: DatabaseType = Database.shared) {
         self.database = database
         let request: NSFetchRequest<StoredEvent> = StoredEvent.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
@@ -56,8 +56,8 @@ final class EventDataStore: NSObject, EventDataStoreType {
 
         htmlDocument
             .map { Event.list(from: $0) }
-            .flatMap { events -> Single<Void> in
-                database.perform(block: { context in
+            .flatMap { [weak database] events -> Observable<Void> in
+                database?.perform(block: { context in
                     let request: NSFetchRequest<StoredEvent> = StoredEvent.fetchRequest()
                     let results = try context.fetch(request)
 
@@ -72,18 +72,18 @@ final class EventDataStore: NSObject, EventDataStoreType {
                         model.id = Int64(event.id)
                         model.title = event.title
                     }
-                })
+                }).asObservable() ?? .empty()
             }
             .bind(to: _htmlUpdated)
             .disposed(by: disposeBag)
 
         deleteAll
-            .flatMap { _ in
-                database.perform(block: { context in
+            .flatMap { [weak database] _ -> Observable<Void> in
+                database?.perform(block: { context in
                     let request: NSFetchRequest<StoredEvent> = StoredEvent.fetchRequest()
                     let results = try context.fetch(request)
                     results.forEach { context.delete($0) }
-                })
+                }).asObservable() ?? .empty()
             }
             .bind(to: _allDeleted)
             .disposed(by: disposeBag)

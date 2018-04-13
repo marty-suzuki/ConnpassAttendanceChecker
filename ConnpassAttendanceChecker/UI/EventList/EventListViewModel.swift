@@ -46,7 +46,7 @@ final class EventListViewModel {
          loggedOut: AnyObserver<Void>,
          webhookType: Webhook.Type,
          dataStoreType: DataStore.Type,
-         database: Database = .shared) {
+         database: DatabaseType = Database.shared) {
         let _loadRequet = PublishRelay<URLRequest>()
         let _navigationActionPolicy = PublishRelay<WKNavigationActionPolicy>()
 

@@ -73,7 +73,7 @@ final class ParticipantListViewModel {
          loggedOut: AnyObserver<Void>,
          webhookType: Webhook.Type,
          dataStoreType: DataStore.Type,
-         database: Database = .shared) {
+         database: DatabaseType = Database.shared) {
         self.event = event
         self.showDetail = detailButtonTap
         self.refresh = _refresh.asObserver()
