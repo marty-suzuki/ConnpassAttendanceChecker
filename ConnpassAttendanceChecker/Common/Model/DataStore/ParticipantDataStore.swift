@@ -108,11 +108,11 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
         self.htmlUpdated = _htmlUpdated.asObservable()
 
         let updateInfo = updateChehckedWithIndex
-            .withLatestFrom(_participants) { ($0.0, $0.1, $1) }
+            .withLatestFrom(_participants) { ($0.0, $0.1, $1, Date().timeIntervalSince1970) }
             .share()
 
         updateInfo
-            .flatMap { [weak database] isChecked, index, participants -> Observable<Int> in
+            .flatMap { [weak database] isChecked, index, participants, updatedAt -> Observable<Int> in
                 let participant = participants[index]
                 return database?.perform(block: { context in
                     let request: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
@@ -126,6 +126,7 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
                     }
 
                     object.isChecked = isChecked
+                    object.updatedAt = updatedAt
                 })
                 .asObservable()
                 .catchError { _ in .empty() }
@@ -163,6 +164,7 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
                         model.ptype = participant.ptype
                         model.displayName = participant.displayName
                         model.userName = participant.userName
+                        model.updatedAt = Date().timeIntervalSince1970
                         model.event = fetchedEvent
                     }
                 }).asObservable() ?? .empty()
@@ -176,35 +178,62 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
 
         if useFirebaseDatabase {
             updateInfo
-                .subscribe(onNext: { [weak self] isChecked, index, participants in
+                .subscribe(onNext: { [weak self] isChecked, index, participants, updatedAt in
                     guard let reference = self?.reference else { return }
                     let participant = participants[index]
                     reference
-                        .child("\(Keys.participants)/\(participant.number)/\(Keys.isChecked)")
-                        .setValue(isChecked)
+                        .child("\(Keys.participants)/\(participant.number)")
+                        .setValue([Keys.isChecked: isChecked, Keys.updatedAt: updatedAt])
                 })
                 .disposed(by: disposeBag)
 
             reference?.rx.snapshot(for: .value)
                 .flatMap { ($0.value as? [String: Any]).map(Observable.just) ?? .empty() }
                 .map { SnapshotContents($0).contents }
-                .flatMap { [event, weak database] contents in
-                    database?.perform(block: { [event] context in
-                        let participantRequest: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
-                        participantRequest.predicate = NSPredicate(format: "event.id = %lld", event.id)
-                        let fetchedParticipants = try context.fetch(participantRequest)
+                .flatMap { [event, weak database] contents -> Observable<[SnapshotContents.Content]> in
+                    guard let database = database else {
+                        return .empty()
+                    }
+                    var differences: [SnapshotContents.Content] = []
+                    return database.perform(block: { [event] context in
+                            let participantRequest: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
+                            participantRequest.predicate = NSPredicate(format: "event.id = %lld", event.id)
+                            let fetchedParticipants = try context.fetch(participantRequest)
 
-                        contents.forEach { content in
-                            guard let participant = fetchedParticipants.lazy.filter({
-                                $0.number == content.number
-                            }).first else {
-                                return
+                            contents.forEach { content in
+                                guard let participant = fetchedParticipants.lazy.filter({
+                                    $0.number == content.number
+                                }).first else {
+                                    return
+                                }
+
+                                guard participant.isChecked != content.isChecked else {
+                                    return
+                                }
+
+                                if participant.updatedAt < content.updatedAt {
+                                    participant.isChecked = content.isChecked
+                                    participant.updatedAt = content.updatedAt
+                                } else {
+                                    let newContent = SnapshotContents.Content(number: content.number,
+                                                                              isChecked: participant.isChecked,
+                                                                              updatedAt: participant.updatedAt)
+                                    differences.append(newContent)
+                                }
                             }
-                            participant.isChecked = content.isChecked
-                        }
-                    }).asObservable() ?? .empty()
+                        })
+                        .map { differences }
+                        .asObservable()
                 }
-                .subscribe()
+                .subscribe(onNext: { [weak self] differences in
+                    guard !differences.isEmpty, let reference = self?.reference else { return }
+                    differences.forEach { content in
+                        reference
+                            .child("\(Keys.participants)/\(content.number)")
+                            .setValue([Keys.isChecked: content.isChecked,
+                                       Keys.updatedAt: content.updatedAt])
+                    }
+                })
                 .disposed(by: disposeBag)
         }
     }
@@ -214,12 +243,14 @@ extension ParticipantDataStore {
     fileprivate enum Keys {
         static let participants = "participants"
         static let isChecked = "isChecked"
+        static let updatedAt = "updatedAt"
     }
 
     fileprivate struct SnapshotContents {
         struct Content {
             let number: Int
             let isChecked: Bool
+            let updatedAt: TimeInterval
         }
 
         let contents: [Content]
@@ -237,7 +268,10 @@ extension ParticipantDataStore {
                 guard let isChecked = contents[key]?[Keys.isChecked] as? Bool else {
                     return nil
                 }
-                return Content(number: number, isChecked: isChecked)
+                guard let updatedAt = contents[key]?[Keys.updatedAt] as? TimeInterval else {
+                    return nil
+                }
+                return Content(number: number, isChecked: isChecked, updatedAt: updatedAt)
             }
         }
     }

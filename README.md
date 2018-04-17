@@ -10,7 +10,9 @@ This is a webscraping based iOS application.
 - Check attendance for an event (CheckIn / CheckOut)
 - Export CheckIn List as CSV
 - Localize English and Japanese
-- Realtime database via Firebase (Optional)
+- Realtime Database via Firebase (Optional)
+
+* If you want to use Realtime Database, please replace `GoogleService-Info.plist` to your own one.
 
 ![](./Images/image.png)
 

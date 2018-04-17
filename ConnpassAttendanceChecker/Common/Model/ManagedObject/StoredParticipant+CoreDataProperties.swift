@@ -1,9 +1,8 @@
 //
 //  StoredParticipant+CoreDataProperties.swift
-//  ConnpassAttendanceChecker
+//  
 //
-//  Created by marty-suzuki on 2018/04/13.
-//  Copyright © 2018年 marty-suzuki. All rights reserved.
+//  Created by 鈴木大貴 on 2018/04/17.
 //
 //
 
@@ -22,6 +21,7 @@ extension StoredParticipant {
     @NSManaged public var number: Int64
     @NSManaged public var ptype: String?
     @NSManaged public var userName: String?
+    @NSManaged public var updatedAt: Double
     @NSManaged public var event: StoredEvent?
 
 }
