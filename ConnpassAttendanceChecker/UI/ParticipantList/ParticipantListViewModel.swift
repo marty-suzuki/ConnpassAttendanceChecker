@@ -73,6 +73,7 @@ final class ParticipantListViewModel {
          loggedOut: AnyObserver<Void>,
          webhookType: Webhook.Type,
          dataStoreType: DataStore.Type,
+         useFirebaseDatabase: Bool = FirebaseManager.shared.isEnabled,
          database: DatabaseType = Database.shared) {
         self.event = event
         self.showDetail = detailButtonTap
@@ -137,6 +138,7 @@ final class ParticipantListViewModel {
                                        filterWithNunmber: number,
                                        filterWithName: name,
                                        indexOfParticipant: participant,
+                                       useFirebaseDatabase: useFirebaseDatabase,
                                        database: database)
         }
 

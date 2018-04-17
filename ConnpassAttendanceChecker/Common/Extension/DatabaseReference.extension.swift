@@ -1,0 +1,20 @@
+//
+//  DatabaseReference.extension.swift
+//  ConnpassAttendanceChecker
+//
+//  Created by 鈴木大貴 on 2018/04/17.
+//  Copyright © 2018年 marty-suzuki. All rights reserved.
+//
+
+import Foundation
+import FirebaseDatabase
+import RxSwift
+
+extension Reactive where Base == DatabaseReference {
+    func snapshot(for eventType: DataEventType) -> Observable<DataSnapshot> {
+        return Observable.create { [weak base] observer in
+            base?.observe(eventType) { observer.onNext($0) }
+            return Disposables.create()
+        }
+    }
+}

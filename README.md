@@ -10,6 +10,7 @@ This is a webscraping based iOS application.
 - Check attendance for an event (CheckIn / CheckOut)
 - Export CheckIn List as CSV
 - Localize English and Japanese
+- Realtime database via Firebase (Optional)
 
 ![](./Images/image.png)
 

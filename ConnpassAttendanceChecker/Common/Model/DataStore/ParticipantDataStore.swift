@@ -11,6 +11,7 @@ import CoreData
 import RxSwift
 import RxCocoa
 import Kanna
+import FirebaseDatabase
 
 protocol ParticipantDataStoreType: class {
     var updatedIndex: Observable<Int> { get }
@@ -24,6 +25,7 @@ protocol ParticipantDataStoreType: class {
          filterWithNunmber: Observable<Int>,
          filterWithName: Observable<String>,
          indexOfParticipant: Observable<Participant>,
+         useFirebaseDatabase: Bool,
          database: DatabaseType)
 }
 
@@ -39,6 +41,7 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
     private let database: DatabaseType
     private let fetchedResultsController: NSFetchedResultsController<StoredParticipant>
     private let disposeBag = DisposeBag()
+    private let reference: DatabaseReference?
 
     init(event: Event,
          htmlDocument: Observable<HTMLDocument>,
@@ -46,8 +49,11 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
          filterWithNunmber: Observable<Int>,
          filterWithName: Observable<String>,
          indexOfParticipant: Observable<Participant>,
+         useFirebaseDatabase: Bool,
          database: DatabaseType = Database.shared) {
         self.database = database
+        self.reference = useFirebaseDatabase ? FirebaseDatabase.Database.database().reference() : nil
+        
         let request: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
         request.predicate = NSPredicate(format: "event.id = %lld", event.id)
         request.sortDescriptors = [NSSortDescriptor(key: "number", ascending: true)]
@@ -101,8 +107,11 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
         let _htmlUpdated = PublishRelay<Void>()
         self.htmlUpdated = _htmlUpdated.asObservable()
 
-        updateChehckedWithIndex
+        let updateInfo = updateChehckedWithIndex
             .withLatestFrom(_participants) { ($0.0, $0.1, $1) }
+            .share()
+
+        updateInfo
             .flatMap { [weak database] isChecked, index, participants -> Observable<Int> in
                 let participant = participants[index]
                 return database?.perform(block: { context in
@@ -164,6 +173,73 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
         super.init()
 
         fetchedResultsController.delegate = self
+
+        if useFirebaseDatabase {
+            updateInfo
+                .subscribe(onNext: { [weak self] isChecked, index, participants in
+                    guard let reference = self?.reference else { return }
+                    let participant = participants[index]
+                    reference
+                        .child("\(Keys.participants)/\(participant.number)/\(Keys.isChecked)")
+                        .setValue(isChecked)
+                })
+                .disposed(by: disposeBag)
+
+            reference?.rx.snapshot(for: .value)
+                .flatMap { ($0.value as? [String: Any]).map(Observable.just) ?? .empty() }
+                .map { SnapshotContents($0).contents }
+                .flatMap { [event, weak database] contents in
+                    database?.perform(block: { [event] context in
+                        let participantRequest: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
+                        participantRequest.predicate = NSPredicate(format: "event.id = %lld", event.id)
+                        let fetchedParticipants = try context.fetch(participantRequest)
+
+                        contents.forEach { content in
+                            guard let participant = fetchedParticipants.lazy.filter({
+                                $0.number == content.number
+                            }).first else {
+                                return
+                            }
+                            participant.isChecked = content.isChecked
+                        }
+                    }).asObservable() ?? .empty()
+                }
+                .subscribe()
+                .disposed(by: disposeBag)
+        }
+    }
+}
+
+extension ParticipantDataStore {
+    fileprivate enum Keys {
+        static let participants = "participants"
+        static let isChecked = "isChecked"
+    }
+
+    fileprivate struct SnapshotContents {
+        struct Content {
+            let number: Int
+            let isChecked: Bool
+        }
+
+        let contents: [Content]
+
+        init(_ value: [String: Any]) {
+            guard let contents = value[Keys.participants] as? [String: [String: Any]] else {
+                self.contents = []
+                return
+            }
+
+            self.contents = contents.keys.compactMap { key in
+                guard let number = Int(key) else {
+                    return nil
+                }
+                guard let isChecked = contents[key]?[Keys.isChecked] as? Bool else {
+                    return nil
+                }
+                return Content(number: number, isChecked: isChecked)
+            }
+        }
     }
 }
 
