@@ -16,7 +16,10 @@ final class FirebaseManager {
     init() {
         if let filePath = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
             let plist = NSDictionary(contentsOfFile: filePath) {
-            self.isEnabled = !plist.allValues.isEmpty
+            self.isEnabled = plist.allValues.reduce(true) { result, value in
+                let string = String(describing: value)
+                return result && !string.isEmpty
+            }
         } else {
             self.isEnabled = false
         }

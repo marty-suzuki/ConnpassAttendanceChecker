@@ -55,9 +55,9 @@
 		72FED688ED54DA740647F9FF /* Pods_ConnpassAttendanceChecker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FCF81501F42F2770671BA4F /* Pods_ConnpassAttendanceChecker.framework */; };
 		D500800EEB3885E1D7F86611 /* Pods_ConnpassAttendanceCheckerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4CBC0B19C69C3FB7113F6C3 /* Pods_ConnpassAttendanceCheckerTests.framework */; };
 		ED7781B2207EFC9E0034F29F /* UIColor.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7781B1207EFC9E0034F29F /* UIColor.extension.swift */; };
-		ED8BF7F92085B1A60068B846 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ED8BF7F82085B1A60068B846 /* GoogleService-Info.plist */; };
 		ED8BF7FB2085B2750068B846 /* FirebaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED8BF7FA2085B2750068B846 /* FirebaseManager.swift */; };
 		ED8BF7FD2085CB0E0068B846 /* DatabaseReference.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED8BF7FC2085CB0E0068B846 /* DatabaseReference.extension.swift */; };
+		ED8BF7FE2085D3410068B846 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ED8BF7F82085B1A60068B846 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -471,9 +471,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ED8BF7FE2085D3410068B846 /* GoogleService-Info.plist in Resources */,
 				37B640FF207674A00061D8AF /* LaunchScreen.storyboard in Resources */,
 				37F09A9B207FD3C200776079 /* Localizable.strings in Resources */,
-				ED8BF7F92085B1A60068B846 /* GoogleService-Info.plist in Resources */,
 				37B640FC207674A00061D8AF /* Assets.xcassets in Resources */,
 				372DC0332078CDBC006E7208 /* ParticipantCell.xib in Resources */,
 			);
