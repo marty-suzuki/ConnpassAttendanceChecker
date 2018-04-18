@@ -12,9 +12,11 @@ import RxSwift
 
 extension Reactive where Base == DatabaseReference {
     func snapshot(for eventType: DataEventType) -> Observable<DataSnapshot> {
-        return Observable.create { [weak base] observer in
-            base?.observe(eventType) { observer.onNext($0) }
-            return Disposables.create()
+        return Observable.create { [base] observer in
+            let handle = base.observe(eventType) { observer.onNext($0) }
+            return Disposables.create {
+                base.removeObserver(withHandle: handle)
+            }
         }
     }
 }
