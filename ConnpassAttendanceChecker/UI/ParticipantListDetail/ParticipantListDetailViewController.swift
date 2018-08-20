@@ -50,6 +50,12 @@ final class ParticipantListDetailViewController: UIViewController {
         loadingView.isHidden = true
         view.ex.addEdges(to: loadingView)
 
+        viewModel.rows.skip(1)
+            .bind(to: Binder(tableview) { tableview, _ in
+                tableview.reloadData()
+            })
+            .disposed(by: disposeBag)
+
         viewModel.close
             .bind(to: Binder(self) { me, _ in
                 me.dismiss(animated: true, completion: nil)
@@ -114,6 +120,8 @@ extension ParticipantListDetailViewController: UITableViewDataSource {
             text = "\(String.ex.localized(.numberOfParticipants)): \(viewModel.numberOfParticipants.value)"
         case .checkInCount:
             text = "\(String.ex.localized(.numberOfCheckIns)): \(viewModel.numberOfCheckIns.value)"
+        case let .categorizedCounts(counts):
+            text = "\(counts.ptype): \(counts.checkInCount) / \(counts.participantCount)"
         case .refresh:
             text = String.ex.localized(.refresh)
             cell.textLabel?.textAlignment = .center

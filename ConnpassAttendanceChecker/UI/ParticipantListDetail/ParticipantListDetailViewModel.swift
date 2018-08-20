@@ -15,6 +15,7 @@ final class ParticipantListDetailViewModel {
         case title
         case participantCount
         case checkInCount
+        case categorizedCounts(CategorizedCounts)
         case refresh
         case export
     }
@@ -24,6 +25,12 @@ final class ParticipantListDetailViewModel {
         case onlyCheckIn
     }
 
+    struct CategorizedCounts {
+        let ptype: String
+        fileprivate(set) var participantCount: Int
+        fileprivate(set) var checkInCount: Int
+    }
+
     let title: String
 
     let close: Observable<Void>
@@ -31,7 +38,6 @@ final class ParticipantListDetailViewModel {
     let csvURL: Observable<URL>
     let hideLoading: Observable<Bool>
 
-    let rows = PropertyRelay<[Row]>(Row.elements)
     let deselectRow: Observable<IndexPath>
 
     let numberOfCheckIns: PropertyRelay<Int>
@@ -39,6 +45,9 @@ final class ParticipantListDetailViewModel {
 
     let numberOfParticipants: PropertyRelay<Int>
     private let _numberOfParticipants = BehaviorRelay<Int>(value: 0)
+
+    let rows: PropertyRelay<[Row]>
+    private let _rows = BehaviorRelay<[Row]>(value: [])
 
     private let disposeBag = DisposeBag()
     private let fileManager: FileManagerType
@@ -55,11 +64,11 @@ final class ParticipantListDetailViewModel {
         self.title = childViewModel.event.title
 
         let selectedRowAndIndexPath = itemSelected
-            .withLatestFrom(rows) { ($1[$0.row], $0) }
+            .withLatestFrom(_rows) { ($1[$0.row], $0) }
             .share()
 
         let refreshAlert = selectedRowAndIndexPath
-            .filter { $0.0 == .refresh }
+            .filter { $0.0.isRefresh }
             .map { _ -> (AlertElement, Row) in
                 return (AlertElement(title: String.ex.localized(.participantListRefresh),
                                      message: String.ex.localized(.doYouWantToRefresh),
@@ -70,7 +79,7 @@ final class ParticipantListDetailViewModel {
             .share()
 
         let csvFilterAlert = selectedRowAndIndexPath
-            .filter { $0.0 == .export }
+            .filter { $0.0.isExport }
             .map { _ -> (AlertElement, Row) in
                 return (AlertElement(title: String.ex.localized(.exportAsCSV),
                                      message: String.ex.localized(.howDoYouExportParticipantList),
@@ -91,9 +100,20 @@ final class ParticipantListDetailViewModel {
 
         self.numberOfCheckIns = PropertyRelay(_numberOfCheckIns)
         self.numberOfParticipants = PropertyRelay(_numberOfParticipants)
+        self.rows = PropertyRelay(_rows)
+
+        let _categorizedCounts = PublishRelay<[CategorizedCounts]>()
+        _categorizedCounts
+            .map { counts -> [Row] in
+                [.title, .participantCount, .checkInCount] +
+                counts.map(Row.categorizedCounts) +
+                [.refresh, .export]
+            }
+            .bind(to: _rows)
+            .disposed(by: disposeBag)
 
         let export = alertHandler
-            .filter { $0.isDefault && $1 == .export  }
+            .filter { $0.isDefault && $1.isExport  }
             .flatMap { values -> Observable<CsvStyle> in
                 values.0.title
                     .flatMap(CsvStyle.init)
@@ -150,7 +170,7 @@ final class ParticipantListDetailViewModel {
             .share()
 
         let refresh = alertHandler
-            .filter { $0.isDefault && $1 == .refresh }
+            .filter { $0.isDefault && $1.isRefresh }
             .share()
 
         Observable.merge(childViewModel.hideLoading,
@@ -173,6 +193,36 @@ final class ParticipantListDetailViewModel {
             .bind(to: _numberOfParticipants)
             .disposed(by: disposeBag)
 
+        childViewModel.participants
+            .map { participants -> [CategorizedCounts] in
+                participants.reduce([CategorizedCounts]()) { countList, participant in
+                    var _countList = countList
+                    var _counts: CategorizedCounts
+                    let index: Int
+
+                    if let _index = countList.index(where: { $0.ptype == participant.ptype }) {
+                        _counts = _countList[_index]
+                        index = _index
+                    } else {
+                        _counts = CategorizedCounts(ptype: participant.ptype,
+                                                       participantCount: 0,
+                                                       checkInCount: 0)
+                        _countList.append(_counts)
+                        index = _countList.count - 1
+                    }
+
+                    _counts.participantCount += 1
+                    if participant.isChecked {
+                        _counts.checkInCount += 1
+                    }
+                    _countList[index] = _counts
+
+                    return _countList
+                }
+            }
+            .bind(to: _categorizedCounts)
+            .disposed(by: disposeBag)
+
         refresh
             .map { _ in }
             .bind(to: childViewModel.refresh)
@@ -185,12 +235,27 @@ extension ParticipantListDetailViewModel.Row {
         switch self {
         case .title,
              .checkInCount,
-             .participantCount:
+             .participantCount,
+             .categorizedCounts:
             return false
         case .export,
              .refresh:
             return true
         }
+    }
+
+    var isRefresh: Bool {
+        if case .refresh = self {
+            return true
+        }
+        return false
+    }
+
+    var isExport: Bool {
+        if case .export = self {
+            return true
+        }
+        return false
     }
 }
 
