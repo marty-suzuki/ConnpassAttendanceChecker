@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ParticipantCell: UITableViewCell {
     static let identifier = "ParticipantCell"
@@ -15,25 +16,29 @@ final class ParticipantCell: UITableViewCell {
     @IBOutlet private weak var displayNameLabel: UILabel!
     @IBOutlet private weak var userNameLabel: UILabel!
     @IBOutlet private weak var checkLabel: UILabel!
+    @IBOutlet private weak var thumbnail: UIImageView!
 
     @IBOutlet private weak var numberCaption: UILabel! {
-        didSet { numberCaption.text = String.ex.localized(.number) }
-    }
-    @IBOutlet private weak var displayNameCaption: UILabel! {
-        didSet { displayNameCaption.text = String.ex.localized(.displayName) }
-    }
-    @IBOutlet private weak var userNameCaption: UILabel! {
-        didSet { userNameCaption.text = String.ex.localized(.userName) }
+        didSet { numberCaption.text = "\(String.ex.localized(.number)):" }
     }
 
     override func awakeFromNib() {
         super.awakeFromNib()
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        thumbnail.kf.cancelDownloadTask()
+    }
+
     func configure(with participant: Participant) {
         numberLabel.text = "\(participant.number)"
         displayNameLabel.text = participant.displayName
-        userNameLabel.text = participant.userName
+        userNameLabel.text = "(\(participant.userName))"
         checkLabel.text = participant.isChecked ? "✅" : "□"
+        if let url = URL(string: participant.thumbnail) {
+            let resource = ImageResource(downloadURL: url)
+            thumbnail.kf.setImage(with: resource)
+        }
     }
 }
