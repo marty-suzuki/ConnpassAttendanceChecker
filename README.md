@@ -21,6 +21,7 @@ This is a webscraping based iOS application.
 - Carthage 0.26.0
 - [Kanna](https://github.com/tid-kijyun/Kanna) 4.0.1
 - [RxSwift](https://github.com/ReactiveX/RxSwift) 4.2.0
+- [Kingfisher](https://github.com/onevcat/Kingfisher) 4.8.1
 
 ## Author
 
