@@ -15,12 +15,12 @@ This is a webscraping based iOS application.
 
 ## Requirements
 
-- Swift 4.1
-- Xcode 9.3
+- Swift 4.1.2
+- Xcode 9.4.1
 - iOS 10.0
 - Carthage 0.26.0
-- [Kanna](https://github.com/tid-kijyun/Kanna) 4.0.0
-- [RxSwift](https://github.com/ReactiveX/RxSwift) 4.1.2
+- [Kanna](https://github.com/tid-kijyun/Kanna) 4.0.1
+- [RxSwift](https://github.com/ReactiveX/RxSwift) 4.2.0
 
 ## Author
 
