@@ -62,9 +62,9 @@ final class EventDataStore: NSObject, EventDataStoreType {
                     let results = try context.fetch(request)
 
                     events.forEach { event in
-                        guard results.lazy.filter({
+                        guard results.first(where: {
                             $0.id == Int64(event.id) && $0.title == event.title
-                        }).first == nil else {
+                        }) == nil else {
                             return
                         }
 

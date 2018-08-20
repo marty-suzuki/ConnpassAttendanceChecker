@@ -141,11 +141,11 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
                     let fetchedParticipants = try context.fetch(participantRequest)
 
                     participants.forEach { participant in
-                        guard fetchedParticipants.lazy.filter({
+                        guard fetchedParticipants.first(where: {
                             $0.number == participant.number &&
                             $0.userName == participant.userName &&
                             $0.displayName == participant.displayName
-                        }).first == nil else {
+                        }) == nil else {
                             return
                         }
 

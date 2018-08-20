@@ -48,4 +48,9 @@ extension UIViewControllerExtension {
         return base.rx.methodInvoked(#selector(base.viewDidAppear(_:)))
             .flatMap { ($0.first as? Bool).map(Observable.just) ?? .empty() }
     }
+
+    var viewDidLayoutSubviews: Observable<Void> {
+        return base.rx.methodInvoked(#selector(base.viewDidLayoutSubviews))
+            .map { _ in }
+    }
 }

@@ -96,9 +96,19 @@ final class ParticipantListViewController: UIViewController {
         navigationItem.rightBarButtonItem = detailButton
 
         if OS.current == .ios10 {
+            ex.viewDidLayoutSubviews
+                .bind(to: Binder(self) { me, _ in
+                    me.searchBar.frame.size = CGSize(width: me.searchToolbar.bounds.size.width - 40,
+                                                     height: me.searchToolbar.bounds.size.height)
+                    me.pickerView.frame.size = CGSize(width: me.pickerToolbar.bounds.size.width - 40,
+                                                      height: me.pickerToolbar.bounds.size.height)
+                })
+                .disposed(by: disposeBag)
+
             tableview.rowHeight = UITableViewAutomaticDimension
             tableview.estimatedRowHeight = 44
         }
+
         tableview.dataSource = self
         let nib = UINib(nibName: ParticipantCell.identifier, bundle: nil)
         tableview.register(nib, forCellReuseIdentifier: ParticipantCell.identifier)
@@ -227,21 +237,6 @@ final class ParticipantListViewController: UIViewController {
         UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseOut, animations: {
             self.view.layoutIfNeeded()
         }, completion: nil)
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        
-        if OS.current == .ios10 {
-            do {
-                let size = searchToolbar.bounds.size
-                searchBar.frame.size = CGSize(width: size.width - 40, height: size.height)
-            }
-            do {
-                let size = pickerToolbar.bounds.size
-                pickerView.frame.size = CGSize(width: size.width - 40, height: size.height)
-            }
-        }
     }
 }
 
