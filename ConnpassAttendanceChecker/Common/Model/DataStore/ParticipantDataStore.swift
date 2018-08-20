@@ -157,6 +157,7 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
                         model.ptype = participant.ptype
                         model.displayName = participant.displayName
                         model.userName = participant.userName
+                        model.thumbnail = participant.thumbnail
                         model.event = fetchedEvent
                     }
                 }).asObservable() ?? .empty()

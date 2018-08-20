@@ -22,6 +22,7 @@ extension StoredParticipant {
     @NSManaged public var number: Int64
     @NSManaged public var ptype: String?
     @NSManaged public var userName: String?
+    @NSManaged public var thumbnail: String?
     @NSManaged public var event: StoredEvent?
 
 }

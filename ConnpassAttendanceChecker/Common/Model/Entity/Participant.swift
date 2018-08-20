@@ -15,6 +15,7 @@ struct Participant {
     var number: Int
     var displayName: String
     var userName: String
+    var thumbnail: String
     var isChecked: Bool
 }
 
@@ -27,7 +28,8 @@ extension Participant {
                     let user = participantView.at_css("td[class='user']"),
                     let number = (id.at_css("span[class='number']")?.text).flatMap(Int.init),
                     let displayName = user.at_css("span[class='display_name']")?.text,
-                    let _userName = user.at_css("span[class='user_name']")?.text
+                    let _userName = user.at_css("span[class='user_name']")?.text,
+                    let thumbnail = user.at_css("a[class='image_link']")?.css("img").lazy.compactMap({ $0["src"] }).first
                 else {
                     return nil
                 }
@@ -45,6 +47,7 @@ extension Participant {
                                    number: number,
                                    displayName: displayName,
                                    userName: userName,
+                                   thumbnail: thumbnail,
                                    isChecked: false)
             }
     }
@@ -53,11 +56,13 @@ extension Participant {
         guard let eventID = participant.event?.id else {
             return nil
         }
+
         self.ptype = participant.ptype ?? ""
         self.eventID = Int(eventID)
         self.number = Int(participant.number)
         self.displayName = participant.displayName ?? ""
         self.userName = participant.userName ?? ""
+        self.thumbnail = participant.thumbnail ?? ""
         self.isChecked = participant.isChecked
     }
 
