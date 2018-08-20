@@ -17,6 +17,7 @@ final class ParticipantCell: UITableViewCell {
     @IBOutlet private weak var userNameLabel: UILabel!
     @IBOutlet private weak var checkLabel: UILabel!
     @IBOutlet private weak var thumbnail: UIImageView!
+    @IBOutlet private weak var participantTypeLabel: UILabel!
 
     @IBOutlet private weak var numberCaption: UILabel! {
         didSet { numberCaption.text = "\(String.ex.localized(.number)):" }
@@ -36,6 +37,7 @@ final class ParticipantCell: UITableViewCell {
         displayNameLabel.text = participant.displayName
         userNameLabel.text = "(\(participant.userName))"
         checkLabel.text = participant.isChecked ? "✅" : "□"
+        participantTypeLabel.text = participant.ptype
         if let url = URL(string: participant.thumbnail) {
             let resource = ImageResource(downloadURL: url)
             thumbnail.kf.setImage(with: resource)

@@ -49,6 +49,7 @@ extension StringExtension {
         case searchType = "SearchType"
         case userName = "UserName"
         case yes = "Yes"
+        case pType = "P-Type"
     }
 
     static func localized(_ key: LocalizedKey) -> String {

@@ -267,7 +267,8 @@ extension ParticipantListViewModel.CheckedAlertElement {
         let strings = [
             "\(ex.localized(.number)): \(participant.number)",
             "\(ex.localized(.displayName)): \(participant.displayName)",
-            "\(ex.localized(.userName)): \(participant.userName)"
+            "\(ex.localized(.userName)): \(participant.userName)",
+            "\(ex.localized(.pType)): \(participant.ptype)"
         ]
         let string = "\(ex.localized(.check))\(ex.localized(participant.isChecked ? .out : .in))"
         self.index = index
