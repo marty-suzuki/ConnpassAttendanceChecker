@@ -52,6 +52,7 @@
 		37F09A9B207FD3C200776079 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 37F09A9D207FD3C200776079 /* Localizable.strings */; };
 		37F09AA2207FD48A00776079 /* String.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09AA1207FD48A00776079 /* String.extension.swift */; };
 		37F09AA4207FE7B100776079 /* OS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09AA3207FE7B100776079 /* OS.swift */; };
+		9D1F0E10212A870A002D8A98 /* Kingfisher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D1F0E0F212A870A002D8A98 /* Kingfisher.framework */; };
 		ED7781B2207EFC9E0034F29F /* UIColor.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7781B1207EFC9E0034F29F /* UIColor.extension.swift */; };
 /* End PBXBuildFile section */
 
@@ -117,6 +118,7 @@
 		37F09AA0207FD41A00776079 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		37F09AA1207FD48A00776079 /* String.extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.extension.swift; sourceTree = "<group>"; };
 		37F09AA3207FE7B100776079 /* OS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OS.swift; sourceTree = "<group>"; };
+		9D1F0E0F212A870A002D8A98 /* Kingfisher.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Kingfisher.framework; path = Carthage/Build/iOS/Kingfisher.framework; sourceTree = "<group>"; };
 		ED7781B1207EFC9E0034F29F /* UIColor.extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColor.extension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -125,6 +127,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9D1F0E10212A870A002D8A98 /* Kingfisher.framework in Frameworks */,
 				37297F8F207806CC0019A4EF /* CoreData.framework in Frameworks */,
 				37CFC88C2077C888008C936C /* RxCocoa.framework in Frameworks */,
 				37CFC88D2077C888008C936C /* RxSwift.framework in Frameworks */,
@@ -266,6 +269,7 @@
 		37B64114207674D20061D8AF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9D1F0E0F212A870A002D8A98 /* Kingfisher.framework */,
 				37297F8E207806CC0019A4EF /* CoreData.framework */,
 				37CFC88A2077C888008C936C /* RxCocoa.framework */,
 				37CFC88B2077C888008C936C /* RxSwift.framework */,
@@ -461,6 +465,7 @@
 				"$(SRCROOT)/Carthage/Build/iOS/Kanna.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/RxCocoa.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/RxSwift.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/Kingfisher.framework",
 			);
 			outputPaths = (
 			);

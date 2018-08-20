@@ -4,3 +4,6 @@
 [submodule "Carthage/Checkouts/Kanna"]
 	path = Carthage/Checkouts/Kanna
 	url = https://github.com/tid-kijyun/Kanna.git
+[submodule "Carthage/Checkouts/Kingfisher"]
+	path = Carthage/Checkouts/Kingfisher
+	url = https://github.com/onevcat/Kingfisher.git
