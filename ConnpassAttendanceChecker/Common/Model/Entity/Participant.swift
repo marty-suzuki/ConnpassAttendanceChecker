@@ -67,10 +67,10 @@ extension Participant {
     }
 
     static func firstLine() -> String {
-        return "number,username,displayname,isChecked\n"
+        return "number,pType,username,displayname,isChecked\n"
     }
 
     func toCsvString() -> String {
-        return "\(number),\(userName),\(displayName),\(isChecked)\n"
+        return "\(number),\(ptype),\(userName),\"\(displayName)\",\(isChecked)\n"
     }
 }
