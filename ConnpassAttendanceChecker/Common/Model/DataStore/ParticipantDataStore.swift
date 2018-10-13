@@ -144,11 +144,12 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
                     let fetchedParticipants = try context.fetch(participantRequest)
 
                     participants.forEach { participant in
-                        guard fetchedParticipants.first(where: {
+                        if let storedParticipant = fetchedParticipants.first(where: {
                             $0.number == participant.number &&
                             $0.userName == participant.userName &&
                             $0.displayName == participant.displayName
-                        }) == nil else {
+                        }) {
+                            storedParticipant.ptype = participant.ptype
                             return
                         }
 
