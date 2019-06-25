@@ -8,6 +8,7 @@
 
 import CoreData
 import RxSwift
+import UIKit
 
 protocol DatabaseType: class {
     func makeFetchedResultsController<T>(fetchRequest: NSFetchRequest<T>) -> NSFetchedResultsController<T>
@@ -74,8 +75,8 @@ final class Database: DatabaseType {
         self.name = name
 
         let nc = NotificationCenter.default
-        [.UIApplicationWillTerminate,
-         .UIApplicationDidEnterBackground]
+        [UIApplication.willTerminateNotification,
+         UIApplication.didEnterBackgroundNotification]
             .forEach {
                 nc.addObserver(self,
                                selector: #selector(Database.saveChanges(_:)),

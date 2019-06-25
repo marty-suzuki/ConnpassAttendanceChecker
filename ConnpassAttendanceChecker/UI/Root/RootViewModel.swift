@@ -8,7 +8,7 @@
 
 import Foundation
 import RxSwift
-import RxCocoa
+import RxRelay
 import WebKit
 
 final class RootViewModel {

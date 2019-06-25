@@ -21,8 +21,8 @@ extension Optional: OptionalType {
     }
 }
 
-extension ObservableType where E: OptionalType {
-    public func unwrap() -> Observable<E.Wrapped> {
+extension ObservableType where Element: OptionalType {
+    public func unwrap() -> Observable<Element.Wrapped> {
         return flatMap {
             $0.value.map(Observable.just) ?? .empty()
         }

@@ -54,7 +54,7 @@ final class EventListViewController: UIViewController {
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
 
         if OS.current == .ios10 {
-            tableview.rowHeight = UITableViewAutomaticDimension
+            tableview.rowHeight = UITableView.automaticDimension
             tableview.estimatedRowHeight = 44
         }
         tableview.dataSource = self

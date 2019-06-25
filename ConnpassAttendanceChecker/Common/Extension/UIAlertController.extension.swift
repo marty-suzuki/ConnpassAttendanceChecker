@@ -17,7 +17,7 @@ enum AlertActionStyle {
 }
 
 extension AlertActionStyle {
-    var style: UIAlertActionStyle {
+    var style: UIAlertAction.Style {
         switch self {
         case .default: return .default
         case .cancel: return .cancel

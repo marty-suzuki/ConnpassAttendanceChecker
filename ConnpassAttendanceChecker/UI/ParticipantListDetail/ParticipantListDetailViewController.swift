@@ -40,7 +40,7 @@ final class ParticipantListDetailViewController: UIViewController {
         navigationItem.leftBarButtonItem = closeButton
 
         if OS.current == .ios10 {
-            tableview.rowHeight = UITableViewAutomaticDimension
+            tableview.rowHeight = UITableView.automaticDimension
             tableview.estimatedRowHeight = 44
         }
         tableview.dataSource = self

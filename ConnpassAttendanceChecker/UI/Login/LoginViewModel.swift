@@ -9,7 +9,7 @@
 import Foundation
 import WebKit
 import RxSwift
-import RxCocoa
+import RxRelay
 
 enum Login {
     static let urlString = "https://connpass.com/login"

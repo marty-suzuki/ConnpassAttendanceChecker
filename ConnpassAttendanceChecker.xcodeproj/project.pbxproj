@@ -39,7 +39,6 @@
 		37CFC88C2077C888008C936C /* RxCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37CFC88A2077C888008C936C /* RxCocoa.framework */; };
 		37CFC88D2077C888008C936C /* RxSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37CFC88B2077C888008C936C /* RxSwift.framework */; };
 		37EDE3CE2079160F008F7475 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EDE3CD2079160F008F7475 /* LoginViewModel.swift */; };
-		37EDE3D1207A88BF008F7475 /* Enumerable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EDE3D0207A88BF008F7475 /* Enumerable.swift */; };
 		37EDE3D3207B9997008F7475 /* ParticipantDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EDE3D2207B9997008F7475 /* ParticipantDataStore.swift */; };
 		37F09A83207BD8DB00776079 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A82207BD8DB00776079 /* LoadingView.swift */; };
 		37F09A86207CFF7D00776079 /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F09A85207CFF7D00776079 /* RootViewController.swift */; };
@@ -104,7 +103,6 @@
 		37CFC88A2077C888008C936C /* RxCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxCocoa.framework; path = Carthage/Build/iOS/RxCocoa.framework; sourceTree = "<group>"; };
 		37CFC88B2077C888008C936C /* RxSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxSwift.framework; path = Carthage/Build/iOS/RxSwift.framework; sourceTree = "<group>"; };
 		37EDE3CD2079160F008F7475 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
-		37EDE3D0207A88BF008F7475 /* Enumerable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enumerable.swift; sourceTree = "<group>"; };
 		37EDE3D2207B9997008F7475 /* ParticipantDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantDataStore.swift; sourceTree = "<group>"; };
 		37F09A82207BD8DB00776079 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		37F09A85207CFF7D00776079 /* RootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewController.swift; sourceTree = "<group>"; };
@@ -173,7 +171,6 @@
 				37297F8C207806AC0019A4EF /* Database.swift */,
 				37297F9020780D7A0019A4EF /* PropertyRelay.swift */,
 				37F09AA3207FE7B100776079 /* OS.swift */,
-				37EDE3CF207A8890008F7475 /* Protocol */,
 				373FB7F92077EA38007A5CE2 /* Extension */,
 				373FB7F82077EA1D007A5CE2 /* Model */,
 			);
@@ -278,14 +275,6 @@
 				37B64115207674D20061D8AF /* WebKit.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		37EDE3CF207A8890008F7475 /* Protocol */ = {
-			isa = PBXGroup;
-			children = (
-				37EDE3D0207A88BF008F7475 /* Enumerable.swift */,
-			);
-			path = Protocol;
 			sourceTree = "<group>";
 		};
 		37EDE3D4207B9E78008F7475 /* ManagedObject */ = {
@@ -466,12 +455,13 @@
 				"$(SRCROOT)/Carthage/Build/iOS/RxCocoa.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/RxSwift.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/Kingfisher.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/RxRelay.framework",
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/usr/local/bin/carthage copy-frameworks";
+			shellScript = "/usr/local/bin/carthage copy-frameworks\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -485,7 +475,6 @@
 				373FB7F12077E876007A5CE2 /* StoredParticipant+CoreDataProperties.swift in Sources */,
 				37297F9120780D7A0019A4EF /* PropertyRelay.swift in Sources */,
 				37F09AA4207FE7B100776079 /* OS.swift in Sources */,
-				37EDE3D1207A88BF008F7475 /* Enumerable.swift in Sources */,
 				373FB7F52077E8B3007A5CE2 /* Event.swift in Sources */,
 				373FB7F02077E876007A5CE2 /* StoredParticipant+CoreDataClass.swift in Sources */,
 				373FB7F22077E876007A5CE2 /* StoredEvent+CoreDataClass.swift in Sources */,
@@ -694,7 +683,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.marty-suzuki.ConnpassAttendanceChecker";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -719,7 +708,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.marty-suzuki.ConnpassAttendanceChecker";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -730,6 +719,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
 				INFOPLIST_FILE = ConnpassAttendanceCheckerTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -738,7 +728,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.marty-suzuki.ConnpassAttendanceCheckerTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ConnpassAttendanceChecker.app/ConnpassAttendanceChecker";
 			};
@@ -750,6 +740,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
 				INFOPLIST_FILE = ConnpassAttendanceCheckerTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -758,7 +749,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.marty-suzuki.ConnpassAttendanceCheckerTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ConnpassAttendanceChecker.app/ConnpassAttendanceChecker";
 			};

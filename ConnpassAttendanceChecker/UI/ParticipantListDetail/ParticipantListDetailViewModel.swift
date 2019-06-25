@@ -8,10 +8,10 @@
 
 import Foundation
 import RxSwift
-import RxCocoa
+import RxRelay
 
 final class ParticipantListDetailViewModel {
-    enum Row: Enumerable {
+    enum Row {
         case title
         case participantCount
         case checkInCount
@@ -200,7 +200,7 @@ final class ParticipantListDetailViewModel {
                     var _counts: CategorizedCounts
                     let index: Int
 
-                    if let _index = countList.index(where: { $0.ptype == participant.ptype }) {
+                    if let _index = countList.firstIndex(where: { $0.ptype == participant.ptype }) {
                         _counts = _countList[_index]
                         index = _index
                     } else {

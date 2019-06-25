@@ -105,7 +105,7 @@ final class ParticipantListViewController: UIViewController {
                 })
                 .disposed(by: disposeBag)
 
-            tableview.rowHeight = UITableViewAutomaticDimension
+            tableview.rowHeight = UITableView.automaticDimension
             tableview.estimatedRowHeight = 44
         }
 

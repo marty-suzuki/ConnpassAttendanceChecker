@@ -14,20 +14,20 @@ final class RootViewController: UIViewController {
     private var currentViewController: UIViewController? {
         didSet {
             guard let currentViewController = currentViewController else { return }
-            addChildViewController(currentViewController)
+            addChild(currentViewController)
             view.ex.addEdges(to: currentViewController.view)
-            currentViewController.didMove(toParentViewController: self)
+            currentViewController.didMove(toParent: self)
 
             guard let oldViewController = oldValue else { return }
-            view.sendSubview(toBack: currentViewController.view)
+            view.sendSubviewToBack(currentViewController.view)
             UIView.transition(from: oldViewController.view,
                               to: currentViewController.view,
                               duration: 0.3,
                               options: .transitionCrossDissolve) { [weak oldViewController] _ in
                 guard let oldViewController = oldViewController else { return }
-                oldViewController.willMove(toParentViewController: nil)
+                oldViewController.willMove(toParent: nil)
                 oldViewController.view.removeFromSuperview()
-                oldViewController.removeFromParentViewController()
+                oldViewController.removeFromParent()
             }
         }
     }

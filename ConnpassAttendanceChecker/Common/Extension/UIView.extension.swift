@@ -19,7 +19,7 @@ extension UIView {
 }
 
 extension UIViewExtension {
-    func addEdges(_ edges: [NSLayoutAttribute] = [.top, .left, .right, .bottom], to view: UIView) {
+    func addEdges(_ edges: [NSLayoutConstraint.Attribute] = [.top, .left, .right, .bottom], to view: UIView) {
         view.translatesAutoresizingMaskIntoConstraints = false
         base.addSubview(view)
         let constrains = edges.map {

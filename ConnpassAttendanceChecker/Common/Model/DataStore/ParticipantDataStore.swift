@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 import RxSwift
-import RxCocoa
+import RxRelay
 import Kanna
 
 protocol ParticipantDataStoreType: class {
@@ -69,7 +69,7 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
         self.indexAndParticipant = indexOfParticipant
             .withLatestFrom(_participants) { ($0, $1) }
             .flatMap { participant, participants -> Observable<(Int, Participant)> in
-                guard let index = participants.index(where: {
+                guard let index = participants.firstIndex(where: {
                     $0.number == participant.number &&
                     $0.userName == participant.userName &&
                     $0.displayName == participant.displayName

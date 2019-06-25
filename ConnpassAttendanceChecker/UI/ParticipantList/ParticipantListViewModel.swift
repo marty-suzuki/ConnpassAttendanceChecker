@@ -8,7 +8,7 @@
 
 import WebKit
 import RxSwift
-import RxCocoa
+import RxRelay
 import Kanna
 import CoreData
 import UIKit
@@ -26,7 +26,7 @@ final class ParticipantListViewModel {
         let isChecked: Bool
     }
 
-    enum SearchType: Enumerable {
+    enum SearchType: CaseIterable {
         case number
         case name
     }
@@ -51,7 +51,7 @@ final class ParticipantListViewModel {
     let refresh: AnyObserver<Void>
     private let _refresh = PublishSubject<Void>()
 
-    private let _searchTypes = BehaviorRelay<[SearchType]>(value: SearchType.elements)
+    private let _searchTypes = BehaviorRelay<[SearchType]>(value: SearchType.allCases)
     private let _displayParticipants = BehaviorRelay<[Participant]>(value: [])
     private let _searchType = BehaviorRelay<SearchType>(value: .number)
     private let disposeBag = DisposeBag()

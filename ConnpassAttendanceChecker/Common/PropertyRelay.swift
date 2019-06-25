@@ -10,27 +10,26 @@ import RxCocoa
 import RxSwift
 
 final class PropertyRelay<Element>: ObservableType {
-    typealias E = Element
 
-    private let relay: BehaviorRelay<E>
+    private let relay: BehaviorRelay<Element>
 
-    var value: E {
+    var value: Element {
         return relay.value
     }
 
-    init(_ relay: BehaviorRelay<E>) {
+    init(_ relay: BehaviorRelay<Element>) {
         self.relay = relay
     }
 
-    init(_ value: E) {
+    init(_ value: Element) {
         self.relay = BehaviorRelay(value: value)
     }
 
-    func subscribe<O>(_ observer: O) -> Disposable where O : ObserverType, E == O.E {
+    func subscribe<O>(_ observer: O) -> Disposable where O : ObserverType, Element == O.Element {
         return relay.subscribe(observer)
     }
 
-    func asObservable() -> Observable<E> {
+    func asObservable() -> Observable<Element> {
         return relay.asObservable()
     }
 }

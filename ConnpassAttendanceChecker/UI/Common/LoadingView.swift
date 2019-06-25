@@ -9,7 +9,7 @@
 import UIKit
 
 final class LoadingView: UIView {
-    let indicatorView = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+    let indicatorView = UIActivityIndicatorView(style: .whiteLarge)
 
     override var isHidden: Bool {
         didSet {
