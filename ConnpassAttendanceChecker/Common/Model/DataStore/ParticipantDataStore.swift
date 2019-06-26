@@ -49,7 +49,7 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
          database: DatabaseType = Database.shared) {
         self.database = database
         let request: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
-        request.predicate = NSPredicate(format: "event.id = %lld", event.id)
+        request.predicate = NSPredicate(format: "event.id = %@", NSNumber(value: event.id))
         request.sortDescriptors = [
             NSSortDescriptor(key: "ptype", ascending: true),
             NSSortDescriptor(key: "number", ascending: true)
@@ -111,9 +111,9 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
                 return database?.perform(block: { context in
                     let request: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
                     request.fetchLimit = 1
-                    request.predicate = NSPredicate(format: "number = %lld AND event.id = %lld",
-                                                    participant.number,
-                                                    participant.eventID)
+                    request.predicate = NSPredicate(format: "number = %@ AND event.id = %@",
+                                                    NSNumber(value: participant.number),
+                                                    NSNumber(value: participant.eventID))
 
                     guard let object = try context.fetch(request).first else {
                         throw Database.Error.objectNotFound
@@ -133,14 +133,14 @@ final class ParticipantDataStore: NSObject, ParticipantDataStoreType {
             .flatMap { [event, weak database] participants -> Observable<Void> in
                 database?.perform(block: { [event] context in
                     let eventRequest: NSFetchRequest<StoredEvent> = StoredEvent.fetchRequest()
-                    eventRequest.predicate = NSPredicate(format: "id = %lld", event.id)
+                    eventRequest.predicate = NSPredicate(format: "id = %@", NSNumber(value: event.id))
                     eventRequest.fetchLimit = 1
                     guard let fetchedEvent = try context.fetch(eventRequest).first else {
                         return
                     }
 
                     let participantRequest: NSFetchRequest<StoredParticipant> = StoredParticipant.fetchRequest()
-                    participantRequest.predicate = NSPredicate(format: "event.id = %lld", event.id)
+                    participantRequest.predicate = NSPredicate(format: "event.id = %@", NSNumber(value: event.id))
                     let fetchedParticipants = try context.fetch(participantRequest)
 
                     participants.forEach { participant in
